@@ -1,20 +1,31 @@
 const express = require("express");
 const cors = require("cors");
+const sequelize = require("./config/database");
 
 const app = express();
 
-// middleware
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// test route
+// Test Route
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// port
-const PORT = 5000;
+// Start server only after database connection
+const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("✅ Database Connected Successfully");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Database Connection Failed");
+    console.error(err.message);
+  });
