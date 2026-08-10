@@ -1,7 +1,6 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
-// Create Sequelize connection
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -10,10 +9,10 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: "postgres",
     port: process.env.DB_PORT,
+    logging: false,
   }
 );
 
-// Test database connection
 sequelize
   .authenticate()
   .then(() => {
@@ -24,5 +23,4 @@ sequelize
     console.error(err.message);
   });
 
-// Export sequelize object
 module.exports = sequelize;
