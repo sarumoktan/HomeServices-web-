@@ -1,20 +1,70 @@
-// Auth Validator
-exports.validateRegister = (req, res, next) => {
-  const { email, password, name } = req.body;
-  
-  if (!email || !password || !name) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-  
-  next();
-};
+// backend/modules/auth/auth.validator.js
+const { body } = require('express-validator');
 
-exports.validateLogin = (req, res, next) => {
-  const { email, password } = req.body;
-  
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
-  }
-  
-  next();
+const registerValidator = [
+  body('firstName')
+    .trim()
+    .notEmpty().withMessage('First name is required')
+    .isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
+
+  body('lastName')
+    .trim()
+    .notEmpty().withMessage('Last name is required')
+    .isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
+
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
+
+  body('phone')
+    .trim()
+    .notEmpty().withMessage('Phone number is required')
+    .matches(/^\+?[1-9]\d{7,14}$/).withMessage('Invalid phone number format'),
+
+  body('password')
+    .notEmpty().withMessage('Password is required')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+
+  // Registration only ever offers "user" or "provider" from the frontend.
+  // "admin" accounts should be created manually/seeded, not via public registration.
+  body('role')
+    .trim()
+    .notEmpty().withMessage('Role is required')
+    .isIn(['user', 'provider']).withMessage('Role must be either user or provider'),
+
+  // Only required when registering as a provider
+  body('serviceType')
+    .if(body('role').equals('provider'))
+    .trim()
+    .notEmpty().withMessage('Service type is required for providers'),
+
+  body('hourlyRate')
+    .if(body('role').equals('provider'))
+    .notEmpty().withMessage('Hourly rate is required for providers')
+    .isFloat({ gt: 0 }).withMessage('Hourly rate must be a positive number'),
+];
+
+const resendVerificationValidator = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
+];
+
+const loginValidator = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format'),
+  body('password')
+    .notEmpty().withMessage('Password is required'),
+];
+
+module.exports = {
+  registerValidator,
+  resendVerificationValidator,
+  loginValidator,
 };
