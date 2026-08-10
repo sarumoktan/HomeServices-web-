@@ -1,31 +1,31 @@
-const express = require("express");
-const cors = require("cors");
-const sequelize = require("./config/database");
+// backend/server.js
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const sequelize = require('./config/database'); // Adjust this path if your database file is located elsewhere!
+
+dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-// Test Route
-app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
-});
+// Auth Routes Mounting
+const authRoutes = require('./modules/auth/auth.route');
+app.use('/api/auth', authRoutes);
 
-// Start server only after database connection
 const PORT = process.env.PORT || 5000;
 
-sequelize
-  .authenticate()
+// Sync database tables and then start server
+sequelize.sync({ alter: true }) // or { force: true } if you want to recreate tables from scratch
   .then(() => {
-    console.log("✅ Database Connected Successfully");
-
+    console.log('✅ Database synchronized successfully');
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ Database Connection Failed");
-    console.error(err.message);
+    console.error('❌ Unable to connect to the database:', err);
   });
+  
