@@ -40,7 +40,8 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
           password,
           role: userType,
           serviceType: userType === "provider" ? serviceType : undefined,
-          hourlyRate: userType === "provider" ? hourlyRate : undefined,
+          hourlyRate: userType === "provider" ? Number(hourlyRate) : undefined,
+          
         };
 
     try {
@@ -163,7 +164,8 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
         <div style={{ padding: "22px 24px 24px" }}>
           {authTab === "login" ? (
             
-            // LOGIN FORM VIEW 
+            //.......................LOGIN CODE.....................................
+
             <form onSubmit={handleAuthSubmit}>
               
               {/* Email Input Field */}
@@ -173,7 +175,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
               <input
                 type="email"
                 required
-                placeholder="you@email.com"
+                placeholder="saru@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ ...inp, marginBottom: 14 }}
@@ -248,7 +250,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                   <input
                     type="text"
                     required
-                    placeholder="Ram"
+                    placeholder="Saru"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     style={inp}
@@ -261,13 +263,14 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                   <input
                     type="text"
                     required
-                    placeholder="Sharma"
+                    placeholder="Moktan"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     style={inp}
                   />
                 </div>
               </div>
+
 
               {/* Email Input */}
               <div style={{ marginBottom: 12 }}>
@@ -277,7 +280,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                 <input
                   type="email"
                   required
-                  placeholder="you@email.com"
+                  placeholder="sarumoktan198@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={inp}
