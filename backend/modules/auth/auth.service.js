@@ -13,15 +13,19 @@ class AppError extends Error {
   }
 }
 
+//Register Code (registerUser)
+
 const registerUser = async ({ firstName, lastName, email, phone, password, role, serviceType, hourlyRate }) => {
+  //Check if the email is already used by someone else
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     throw new AppError('Email is already registered.', 400, 'EMAIL_EXISTS');
   }
-
+//Hash the password for security so it's not saved in plain text
   const hashedPassword = await bcrypt.hash(password, 10);
-  const verificationToken = crypto.randomBytes(32).toString('hex');
+  const verificationToken = crypto.randomBytes(32).toString('hex');//Create a unique token for email verification
 
+  //Save the new user into the database
   const user = await User.create({
     firstName,
     lastName,
@@ -35,8 +39,10 @@ const registerUser = async ({ firstName, lastName, email, phone, password, role,
     isVerified: false,
   });
 
+  //Send the verification email to the user
   await sendVerificationEmail(user, verificationToken);
 
+  //Return basic user info (no passwords or tokens)
   return {
     id: user.id,
     email: user.email,
@@ -46,6 +52,7 @@ const registerUser = async ({ firstName, lastName, email, phone, password, role,
   };
 };
 
+//verifies a user's account using the token sent to their email
 const verifyEmail = async (token) => {
   const user = await User.findOne({ where: { verificationToken: token } });
   if (!user) {
@@ -63,6 +70,7 @@ const verifyEmail = async (token) => {
   return { alreadyVerified: false };
 };
 
+//// Resends a new verification email if the user asks for it
 const resendVerificationEmail = async (email) => {
   const user = await User.findOne({ where: { email } });
   if (!user) {
@@ -79,24 +87,28 @@ const resendVerificationEmail = async (email) => {
 
   await sendVerificationEmail(user, verificationToken);
 };
-
+//Login Code (loginUser)
 const loginUser = async (email, password) => {
   const user = await User.findOne({ where: { email } });
   if (!user) {
     throw new AppError('Invalid email or password.', 401, 'INVALID_CREDENTIALS');
   }
 
+  //Check if the entered password matches the stored hashed password
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new AppError('Invalid email or password.', 401, 'INVALID_CREDENTIALS');
   }
 
+//Block login if the user hasn't verified their email yet
   if (!user.isVerified) {
     throw new AppError('Please verify your email before logging in.', 403, 'NOT_VERIFIED');
   }
 
+  //enerate an access token for the user session
   const token = generateToken(user.id);
 
+  //Return the token and user details
   return {
     token,
     user: {
