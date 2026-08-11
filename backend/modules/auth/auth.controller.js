@@ -7,7 +7,7 @@ const {
   loginUser,
 } = require('./auth.service');
 
-// Register a new user
+//............................... Register...............................
 const register = async (req, res) => {
   try {
     const { firstName, lastName, email, phone, password, role } = req.body;
@@ -64,7 +64,12 @@ const resendVerification = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
   }
 };
-// Log in an existing user
+
+
+
+//.............login......................
+
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
