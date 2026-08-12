@@ -1,19 +1,18 @@
-// Booking Validator
-exports.validateCreate = (req, res, next) => {
-  const { userId, providerId, serviceId, bookingDate } = req.body;
-  
-  if (!userId || !providerId || !serviceId || !bookingDate) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-  
-  next();
-};
+// booking.validator.js
+const Joi = require('joi');
 
-exports.validateUpdate = (req, res, next) => {
-  const { status } = req.body;
+const bookingValidationSchema = Joi.object({
+  user: Joi.string().required(),
+  date: Joi.date().required(),
+  status: Joi.string().valid('pending', 'confirmed', 'cancelled')
+});
+
+exports.validateBooking = (req, res, next) => {
+  const { error } = bookingValidationSchema.validate(req.body, { abortEarly: false });
   
-  if (status && !['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
+  if (error) {
+    const errorMessage = error.details.map((detail) => detail.message).join(', ');
+    return res.status(400).json({ message: errorMessage });
   }
   
   next();
