@@ -2,46 +2,39 @@
 const Booking = require('./booking.model');
 
 exports.getAllBookings = async () => {
-  try {
-    // Fetch all bookings from database
-    return [];
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return await Booking.find();
 };
 
 exports.getBookingById = async (id) => {
-  try {
-    // Fetch booking by ID
-    return {};
-  } catch (error) {
-    throw new Error(error.message);
+  const booking = await Booking.findById(id);
+  if (!booking) {
+    throw new Error('Booking not found');
   }
+  return booking;
 };
 
 exports.createBooking = async (bookingData) => {
-  try {
-    // Create new booking
-    return bookingData;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const booking = new Booking(bookingData);
+  return await booking.save();
 };
 
 exports.updateBooking = async (id, bookingData) => {
-  try {
-    // Update booking
-    return bookingData;
-  } catch (error) {
-    throw new Error(error.message);
+  const updatedBooking = await Booking.findByIdAndUpdate(id, bookingData, {
+    new: true,
+    runValidators: true
+  });
+  
+  if (!updatedBooking) {
+    throw new Error('Booking not found for update');
   }
+  
+  return updatedBooking;
 };
 
 exports.deleteBooking = async (id) => {
-  try {
-    // Delete booking
-    return { message: 'Booking deleted' };
-  } catch (error) {
-    throw new Error(error.message);
+  const deletedBooking = await Booking.findByIdAndDelete(id);
+  if (!deletedBooking) {
+    throw new Error('Booking not found for deletion');
   }
+  return deletedBooking;
 };
