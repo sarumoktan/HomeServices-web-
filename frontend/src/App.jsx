@@ -20,6 +20,7 @@ export default function App() {
   const [authTab, setAuthTab] = useState("login");
   const [loggedIn, setLoggedIn] = useState(false);
   const [userType, setUserType] = useState("user");
+  const [currentUser, setCurrentUser] = useState(null);
   const [showMap, setShowMap] = useState(false);
   const [booking, setBooking] = useState(null);
   const [showChat, setShowChat] = useState(false);
@@ -38,10 +39,20 @@ export default function App() {
     setPage(pg);
   };
 
-  const handleLogin = (type) => {
+  const handleLogin = (type, data) => {
+    // store token and set current user from backend response
+    if (data && data.token) {
+      try {
+        localStorage.setItem('token', data.token);
+      } catch (e) {}
+    }
+    if (data && data.user) setCurrentUser(data.user);
     setLoggedIn(true);
     setUserType(type);
-    go(type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "home");
+    
+    // Updated target: regular users now navigate directly to "home" instead of "profile"
+    const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "home";
+    go(target);
   };
 
   const handleLogout = () => {
@@ -117,7 +128,7 @@ export default function App() {
         />
       )}
 
-      {page === "profile" && <ProfilePage />}
+      {page === "profile" && <ProfilePage user={currentUser} />}
 
       {page === "provider-dash" && (
         <ProviderDashboard
