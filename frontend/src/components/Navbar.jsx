@@ -37,26 +37,26 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
   return (
     <nav
       style={{
-        background: "rgba(9,9,15,0.92)",
-        backdropFilter: "blur(24px)",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        background: "rgba(248, 249, 250, 0.95)", // Changed to off-white
+        backdropFilter: "blur(18px)",
+        borderBottom: "1px solid rgba(0, 0, 0, 0.08)", // Adjusted border for light background
         padding: "0 24px",
         display: "flex",
         alignItems: "center",
-        height: 62,
+        height: 70,
         position: "sticky",
         top: 0,
         zIndex: 100,
-        gap: 8,
+        gap: 12,
       }}
       onClick={() => notifOpen && setNotifOpen(false)}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: 12,
           cursor: "pointer",
-          marginRight: 16,
+          marginRight: 18,
         }}
         onClick={() => onNavigate("home")}>
         <div
@@ -96,7 +96,7 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
               border: `1px solid ${page === n.id ? "rgba(255,107,53,0.4)" : "transparent"}`,
               borderRadius: 8,
               padding: "6px 14px",
-              color: page === n.id ? T.orange : T.muted,
+              color: page === n.id ? T.orange : "#4A5568", // Updated muted text color for light bg
               fontWeight: page === n.id ? 700 : 500,
               cursor: "pointer",
               fontSize: 13,
@@ -117,8 +117,8 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
                 setNotifOpen(!notifOpen);
               }}
               style={{
-                background: "rgba(255,255,255,0.07)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: "rgba(0, 0, 0, 0.05)", // Adjusted for light background
+                border: "1px solid rgba(0, 0, 0, 0.1)", // Adjusted for light background
                 borderRadius: 10,
                 width: 38,
                 height: 38,
@@ -156,21 +156,21 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
                   position: "absolute",
                   top: 46,
                   right: 0,
-                  background: "#0D0D20",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "#FFFFFF", // Light background for notification dropdown
+                  border: "1px solid rgba(0,0,0,0.1)",
                   borderRadius: 16,
                   width: 320,
                   overflow: "hidden",
-                  boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
                 }}>
                 <div
                   style={{
                     padding: "12px 16px",
                     fontFamily: T.font,
                     fontWeight: 700,
-                    color: T.text,
+                    color: "#1A202C",
                     fontSize: 14,
-                    borderBottom: "1px solid rgba(255,255,255,0.07)",
+                    borderBottom: "1px solid rgba(0,0,0,0.07)",
                   }}>
                   Notifications
                 </div>
@@ -179,7 +179,7 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
                     key={n.id}
                     style={{
                       padding: "11px 16px",
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      borderBottom: "1px solid rgba(0,0,0,0.05)",
                       background: n.read ? "transparent" : "rgba(255,107,53,0.05)",
                       display: "flex",
                       gap: 12,
@@ -200,10 +200,10 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
                       {n.icon}
                     </div>
                     <div>
-                      <div style={{ fontFamily: T.font, fontSize: 13, color: T.text, lineHeight: 1.4 }}>
+                      <div style={{ fontFamily: T.font, fontSize: 13, color: "#2D3748", lineHeight: 1.4 }}>
                         {n.msg}
                       </div>
-                      <div style={{ fontFamily: T.font, fontSize: 11, color: T.dim, marginTop: 2 }}>
+                      <div style={{ fontFamily: T.font, fontSize: 11, color: "#718096", marginTop: 2 }}>
                         {n.time}
                       </div>
                     </div>
