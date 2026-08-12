@@ -2,12 +2,15 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('./booking.controller');
-const bookingValidator = require('./booking.validator');
+const { validateBooking } = require('./booking.validator');
 
-router.get('/', bookingController.getAllBookings);
-router.get('/:id', bookingController.getBookingById);
-router.post('/', bookingValidator.validateCreate, bookingController.createBooking);
-router.put('/:id', bookingValidator.validateUpdate, bookingController.updateBooking);
-router.delete('/:id', bookingController.deleteBooking);
+router.route('/')
+  .get(bookingController.getAllBookings)
+  .post(validateBooking, bookingController.createBooking);
+
+router.route('/:id')
+  .get(bookingController.getBookingById)
+  .put(validateBooking, bookingController.updateBooking)
+  .delete(bookingController.deleteBooking);
 
 module.exports = router;
