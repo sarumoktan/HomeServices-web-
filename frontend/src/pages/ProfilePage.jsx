@@ -1,7 +1,36 @@
+import React, { useState, useEffect } from "react";
 import { T } from "../constants/theme";
 import { card, btnP, inp } from "../constants/styles";
 
 export function ProfilePage() {
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser({
+          name: parsedUser.name || parsedUser.fullName || "",
+          email: parsedUser.email || "",
+          phone: parsedUser.phone || "",
+          address: parsedUser.address || "",
+        });
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+      }
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
       <div style={{ ...card, overflow: "hidden", marginBottom: 16 }}>
@@ -25,7 +54,7 @@ export function ProfilePage() {
               border: "3px solid #09090F",
               boxShadow: "0 6px 20px rgba(255,107,53,0.4)",
             }}>
-            A
+            {user.name ? user.name.charAt(0).toUpperCase() : "A"}
           </div>
         </div>
         <div style={{ padding: "48px 24px 24px" }}>
@@ -39,10 +68,10 @@ export function ProfilePage() {
             }}>
             <div>
               <div style={{ fontFamily: T.font, fontWeight: 900, fontSize: 20, color: T.text }}>
-                Arjun Shrestha
+                {user.name || "Name not set"}
               </div>
               <div style={{ fontFamily: T.font, color: T.muted, fontSize: 13 }}>
-                arjun@email.com · Kathmandu, Nepal · Member since Jan 2025
+                {user.email || "Email not set"} · {user.address || "Kathmandu, Nepal"} · Member since Jan 2025
               </div>
             </div>
             <div
@@ -69,33 +98,9 @@ export function ProfilePage() {
               </span>
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 12 }}>
-            {[
-              ["12", "Total Bookings", T.orange],
-              ["8", "Completed", T.success],
-              ["3", "Upcoming", T.blue],
-              ["4.8★", "Avg Rating", T.warning],
-            ].map(([v, l, c]) => (
-              <div key={l} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "14px", textAlign: "center" }}>
-                <div
-                  style={{
-                    fontFamily: T.font,
-                    fontWeight: 900,
-                    fontSize: 20,
-                    background: `linear-gradient(90deg,${c},${c}BB)`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}>
-                  {v}
-                </div>
-                <div style={{ fontFamily: T.font, color: T.muted, fontSize: 11, marginTop: 3 }}>
-                  {l}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
+
       <div style={{ ...card, padding: 24 }}>
         <div
           style={{
@@ -112,19 +117,22 @@ export function ProfilePage() {
           Edit Profile
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          {[
-            ["Full Name", "Arjun Shrestha"],
-            ["Email", "arjun@email.com"],
-            ["Phone", "+977-9812345678"],
-            ["Address", "Thamel, Kathmandu"],
-          ].map(([l, v]) => (
-            <div key={l}>
-              <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>
-                {l}
-              </div>
-              <input defaultValue={v} style={inp} />
-            </div>
-          ))}
+          <div>
+            <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Full Name</div>
+            <input name="name" value={user.name} onChange={handleChange} autoComplete="off" style={inp} />
+          </div>
+          <div>
+            <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Email</div>
+            <input name="email" value={user.email} onChange={handleChange} autoComplete="off" style={inp} />
+          </div>
+          <div>
+            <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Phone</div>
+            <input name="phone" value={user.phone} onChange={handleChange} autoComplete="off" style={inp} />
+          </div>
+          <div>
+            <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Address</div>
+            <input name="address" value={user.address} onChange={handleChange} autoComplete="off" style={inp} />
+          </div>
         </div>
         <button style={{ ...btnP, width: "auto", padding: "10px 28px", marginTop: 16 }}>
           Save Changes
