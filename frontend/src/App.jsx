@@ -49,9 +49,8 @@ export default function App() {
     if (data && data.user) setCurrentUser(data.user);
     setLoggedIn(true);
     setUserType(type);
-    
-    // Updated target: regular users now navigate directly to "home" instead of "profile"
-    const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "home";
+    // navigate to profile for regular users, otherwise keep existing behavior
+    const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "profile";
     go(target);
   };
 
