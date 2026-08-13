@@ -49,6 +49,18 @@ User.init(
       allowNull: false,
       defaultValue: 'customer',
     },
+    serviceType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    hourlyRate: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    verificationToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     isVerified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
