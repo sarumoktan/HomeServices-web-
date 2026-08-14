@@ -27,7 +27,7 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
           </div>
           <div style={{ fontFamily: T.font, color: T.muted, fontSize: 13 }}>
             ServiHub Operations · Kathmandu
-          </div>
+          </div> 
         </div>
       </div>
 
