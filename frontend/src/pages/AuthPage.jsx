@@ -368,4 +368,3 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
       </div>
     </div>
   );
-}
