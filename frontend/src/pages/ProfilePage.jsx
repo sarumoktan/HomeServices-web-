@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { T } from "../constants/theme";
 import { card, btnP, inp } from "../constants/styles";
 
-export function ProfilePage() {
+export function ProfilePage({ user: propUser }) {
+  // State to hold profile user information fields
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -10,31 +11,56 @@ export function ProfilePage() {
     address: "",
   });
 
+  // useEffect runs when the component loads to fetch user profile from backend API or props
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser);
-        setUser({
-          name: parsedUser.name || parsedUser.fullName || "",
-          email: parsedUser.email || "",
-          phone: parsedUser.phone || "",
-          address: parsedUser.address || "",
-        });
-      } catch (e) {
-        console.error("Failed to parse user from localStorage", e);
-      }
+    // If parent provided user (after login), use it immediately
+    if (propUser) {
+      const name = (propUser.firstName || propUser.name || '') + (propUser.lastName ? ` ${propUser.lastName}` : '');
+      setUser({
+        name: name.trim() || (propUser.fullName || ''),
+        email: propUser.email || '',
+        phone: propUser.phone || '',
+        address: propUser.address || '',
+      });
+      return;
     }
-  }, []);
 
+    const token = localStorage.getItem("token"); // Login garda save bhako token nikalne
+
+    if (token) {
+      fetch('/api/users/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Token pathayesi backend le user chinxa
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            setUser({
+              name: data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.fullName || "",
+              email: data.email || "",
+              phone: data.phone || "",
+              address: data.address || "",
+            });
+          }
+        })
+        .catch(err => console.error("Error fetching profile from backend:", err));
+    }
+  }, [propUser]);
+
+  // Handle input field changes
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
+      {/* Profile Header Card */}
       <div style={{ ...card, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ height: 120, background: T.grad2, position: "relative" }}>
+          {/* User Avatar Circle displaying the first letter of the name */}
           <div
             style={{
               position: "absolute",
@@ -66,6 +92,7 @@ export function ProfilePage() {
               gap: 12,
               marginBottom: 20,
             }}>
+            {/* User Details Display */}
             <div>
               <div style={{ fontFamily: T.font, fontWeight: 900, fontSize: 20, color: T.text }}>
                 {user.name || "Name not set"}
@@ -74,6 +101,7 @@ export function ProfilePage() {
                 {user.email || "Email not set"} · {user.address || "Kathmandu, Nepal"} · Member since Jan 2025
               </div>
             </div>
+            {/* Active Status Badge */}
             <div
               style={{
                 display: "flex",
@@ -101,6 +129,7 @@ export function ProfilePage() {
         </div>
       </div>
 
+      {/* Edit Profile Form Card */}
       <div style={{ ...card, padding: 24 }}>
         <div
           style={{
@@ -117,23 +146,28 @@ export function ProfilePage() {
           Edit Profile
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          {/* Full Name Input */}
           <div>
             <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Full Name</div>
             <input name="name" value={user.name} onChange={handleChange} autoComplete="off" style={inp} />
           </div>
+          {/* Email Input */}
           <div>
             <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Email</div>
             <input name="email" value={user.email} onChange={handleChange} autoComplete="off" style={inp} />
           </div>
+          {/* Phone Input */}
           <div>
             <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Phone</div>
             <input name="phone" value={user.phone} onChange={handleChange} autoComplete="off" style={inp} />
           </div>
+          {/* Address Input */}
           <div>
             <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>Address</div>
             <input name="address" value={user.address} onChange={handleChange} autoComplete="off" style={inp} />
           </div>
         </div>
+        {/* Save Changes Button */}
         <button style={{ ...btnP, width: "auto", padding: "10px 28px", marginTop: 16 }}>
           Save Changes
         </button>
@@ -141,3 +175,5 @@ export function ProfilePage() {
     </div>
   );
 }
+
+export default ProfilePage;
