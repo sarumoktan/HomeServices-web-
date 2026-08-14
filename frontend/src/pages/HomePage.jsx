@@ -214,7 +214,7 @@ export function HomePage({ onNavigate, setShowMap }) {
               <div key={step.title} className="step-card">
                 <div className="step-num">{step.number}</div>
                 <div className={`step-icon icon-${step.icon}`}>{step.svg}</div>
-                <h4>{step.title}</h4>
+                <h4 style={{ color: "#000" }}>{step.title}</h4>
                 <p>{step.description}</p>
               </div>
             ))}
@@ -223,19 +223,19 @@ export function HomePage({ onNavigate, setShowMap }) {
           <div className="stat-row">
             <div className="stat-card">
               <div className="stat-icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="#4E7A4A" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg></div>
-              <div><h5>100% Verified</h5><span>Background-checked pros</span></div>
+              <div><h5 style={{ color: "#000" }}>100% Verified</h5><span>Background-checked pros</span></div>
             </div>
             <div className="stat-card">
               <div className="stat-icon icon-lav"><svg viewBox="0 0 24 24" fill="none" stroke="#7C6AC7" strokeWidth="2"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg></div>
-              <div><h5>Instant Booking</h5><span>Book in seconds</span></div>
+              <div><h5 style={{ color: "#000" }}>Instant Booking</h5><span>Book in seconds</span></div>
             </div>
             <div className="stat-card">
               <div className="stat-icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="#2E4CDB" strokeWidth="2"><rect x="3" y="10" width="18" height="10" rx="2"/><path d="M7 10V7a5 5 0 0110 0v3"/></svg></div>
-              <div><h5>Secure Payment</h5><span>Encrypted checkout</span></div>
+              <div><h5 style={{ color: "#000" }}>Secure Payment</h5><span>Encrypted checkout</span></div>
             </div>
             <div className="stat-card">
               <div className="stat-icon icon-amber"><svg viewBox="0 0 24 24" fill="none" stroke="#C68A1F" strokeWidth="2"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div>
-              <div><h5>4.8 Average</h5><span>Rated by 75k customers</span></div>
+              <div><h5 style={{ color: "#000" }}>4.8 Average</h5><span>Rated by 75k customers</span></div>
             </div>
           </div>
         </div>
@@ -266,7 +266,6 @@ export function HomePage({ onNavigate, setShowMap }) {
           <button className="btn btn-light" onClick={() => onNavigate("auth")}>Join as Provider →</button>
         </div>
       </div>
-
     </main>
   );
 }
