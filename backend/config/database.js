@@ -16,10 +16,10 @@ const sequelize = new Sequelize(
 sequelize
   .authenticate()
   .then(() => {
-    console.log("✅ PostgreSQL Connected Successfully");
+    console.log("PostgreSQL Connected Successfully");
   })
   .catch((err) => {
-    console.error("❌ Unable to connect to PostgreSQL");
+    console.error("Unable to connect to PostgreSQL");
     console.error(err.message);
   });
 
