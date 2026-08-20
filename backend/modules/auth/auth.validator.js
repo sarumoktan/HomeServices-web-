@@ -46,12 +46,25 @@ const registerValidator = [
     .isFloat({ gt: 0 }).withMessage('Hourly rate must be a positive number'),
 ];
 
-const resendVerificationValidator = [
+const resendOtpValidator = [
   body('email')
     .trim()
     .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .normalizeEmail(),
+];
+
+const verifyOtpValidator = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
+
+  body('otp')
+    .trim()
+    .notEmpty().withMessage('Verification code is required')
+    .matches(/^\d{6}$/).withMessage('Verification code must be 6 digits'),
 ];
 
 const loginValidator = [
@@ -65,7 +78,8 @@ const loginValidator = [
 
 module.exports = {
   registerValidator,
-  resendVerificationValidator,
+  resendOtpValidator,
+  verifyOtpValidator,
   loginValidator,
 };
 
