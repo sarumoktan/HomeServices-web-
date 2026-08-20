@@ -1,40 +1,44 @@
-// backend/modules/auth/auth.controller.js
 const {
   AppError,
   registerUser,
-  verifyEmail,
-  resendVerificationEmail,
+  verifyOtp,
+  resendOtp,
   loginUser,
 } = require('./auth.service');
 
-//............................... Register...............................
+const handleError = (res, err, context) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      code: err.code,
+      message: err.message,
+      ...err.details,
+    });
+  }
+  console.error(`${context} error:`, err);
+  return res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+};
+
 const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password, role } = req.body;
-
-// Call service to register the user
-    const user = await registerUser({ firstName, lastName, email, phone, password, role });
+    const { firstName, lastName, email, phone, password, role, serviceType, hourlyRate } = req.body;
+    const user = await registerUser({ firstName, lastName, email, phone, password, role, serviceType, hourlyRate });
 
     return res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email to verify your account.',
+      message: 'Registration successful! Enter the 6-digit code sent to your email.',
       data: user,
     });
-    // Handle expected errors
   } catch (err) {
-    if (err instanceof AppError) {
-      return res.status(err.statusCode).json({ success: false, code: err.code, message: err.message });
-    }
-    console.error('Register error:', err);
-    return res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+    return handleError(res, err, 'Register');
   }
 };
-// Verify user's email using a token
-const verifyEmailController = async (req, res) => {
+
+const verifyOtpController = async (req, res) => {
+  console.log("reached here");
   try {
-    const { token } = req.params;
-    const result = await verifyEmail(token);
-// Check if the email was already verified previously 
+    const { email, otp } = req.body;
+    const result = await verifyOtp(email, otp);
 
     if (result.alreadyVerified) {
       return res.status(200).json({ success: true, message: 'Email is already verified.' });
@@ -42,33 +46,20 @@ const verifyEmailController = async (req, res) => {
 
     return res.status(200).json({ success: true, message: 'Email verified successfully.' });
   } catch (err) {
-    if (err instanceof AppError) {
-      return res.status(err.statusCode).json({ success: false, code: err.code, message: err.message });
-    }
-    console.error('Verify email error:', err);
-    return res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+    return handleError(res, err, 'Verify OTP');
   }
 };
-// Resend the email verification link
-const resendVerification = async (req, res) => {
+
+const resendOtpController = async (req, res) => {
   try {
     const { email } = req.body;
-    await resendVerificationEmail(email);
+    await resendOtp(email);
 
-    return res.status(200).json({ success: true, message: 'Verification email sent.' });
+    return res.status(200).json({ success: true, message: 'A new code has been sent to your email.' });
   } catch (err) {
-    if (err instanceof AppError) {
-      return res.status(err.statusCode).json({ success: false, code: err.code, message: err.message });
-    }
-    console.error('Resend verification error:', err);
-    return res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+    return handleError(res, err, 'Resend OTP');
   }
 };
-
-
-
-//.............login......................
-
 
 const login = async (req, res) => {
   try {
@@ -81,17 +72,13 @@ const login = async (req, res) => {
       data: { token, user },
     });
   } catch (err) {
-    if (err instanceof AppError) {
-      return res.status(err.statusCode).json({ success: false, code: err.code, message: err.message });
-    }
-    console.error('Login error:', err);
-    return res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+    return handleError(res, err, 'Login');
   }
 };
-// Export controller functions
+
 module.exports = {
   register,
-  verifyEmailController,
-  resendVerification,
+  verifyOtp: verifyOtpController,
+  resendOtp: resendOtpController,
   login,
 };
