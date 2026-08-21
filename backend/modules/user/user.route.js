@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getProfile } = require('./user.controller');
-const authMiddleware = require('../../middleware/validator.middleware');
+const UserController = require('./user.controller');
 
-router.get('/profile', authMiddleware, getProfile);
+// GET profile data to auto-fill the form
+router.get('/profile/:userId', UserController.getProfile);
+
+// POST/PUT profile data when saved/completed
+router.post('/profile', UserController.updateProfile);
 
 module.exports = router;
