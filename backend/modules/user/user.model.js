@@ -1,78 +1,33 @@
-// backend/modules/user/user.model.js
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../../config/database');
+const db = require('../../config/database');
 
-class User extends Model {
-  toSafeJSON() {
-    const { password, ...safe } = this.toJSON();
-    return safe;
-  }
-}
+const UserModel = {
+    // Fetch user profile data by ID
+    async findById(userId) {
+        const query = `SELECT id, first_name, last_name, email, phone, address FROM profiles WHERE user_id = $1`;
+        const result = await db.query(query, [userId]);
+        return result.rows[0];
+    },
 
-User.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { notEmpty: true },
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { notEmpty: true },
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: { isEmail: true },
-      set(value) {
-        this.setDataValue('email', value.toLowerCase().trim());
-      },
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    role: {
-      type: DataTypes.ENUM('customer', 'provider'),
-      allowNull: false,
-      defaultValue: 'customer',
-    },
-    serviceType: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    hourlyRate: {
-      type: DataTypes.DECIMAL,
-      allowNull: true,
-    },
-    verificationToken: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-  },
-  {
-    sequelize,
-    modelName: 'User',
-    tableName: 'users',
-    timestamps: true, // createdAt, updatedAt handled automatically
-  }
-);
+    // Update or insert user profile data automatically
+    async upsertProfile(userId, data) {
+        const { firstName, lastName, email, phone, address } = data;
+        const query = `
+            INSERT INTO profiles (user_id, first_name, last_name, email, phone, address, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET 
+                first_name = EXCLUDED.first_name,
+                last_name = EXCLUDED.last_name,
+                email = EXCLUDED.email,
+                phone = EXCLUDED.phone,
+                address = EXCLUDED.address,
+                updated_at = CURRENT_TIMESTAMP
+            RETURNING *;
+        `;
+        const values = [userId, firstName, lastName, email || '', phone || '', address];
+        const result = await db.query(query, values);
+        return result.rows[0];
+    }
+};
 
-module.exports = User;
+module.exports = UserModel;
