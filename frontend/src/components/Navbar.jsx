@@ -1,243 +1,51 @@
-import { useState } from "react";
-import { T } from "../constants/theme";
-import { btnG, btnP } from "../constants/styles";
-import { NOTIFS } from "../constants/data";
+import React from "react";
+import { MapPin, ChevronDown, UserRound } from "lucide-react";
 
 export function Navbar({ page, loggedIn, onLogout, onNavigate, userType }) {
-  const [notifOpen, setNotifOpen] = useState(false);
-
-  const navLinks =
-    loggedIn
-      ? userType === "admin"
-        ? [
-            { id: "admin", l: "Dashboard" },
-            { id: "providers", l: "Providers" },
-            { id: "bookings", l: "Bookings" },
-          ]
-        : userType === "provider"
-          ? [
-              { id: "home", l: "Home" },
-              { id: "provider-dash", l: "My Jobs" },
-              { id: "profile", l: "Profile" },
-            ]
-          : [
-              { id: "home", l: "Home" },
-              { id: "services", l: "Browse" },
-              { id: "bookings", l: "My Bookings" },
-              { id: "profile", l: "Profile" },
-            ]
-      : [
-          { id: "home", l: "Home" },
-          { id: "services", l: "Services" },
-          { id: "auth", l: "Sign In" },
-        ];
-
-  const unread = NOTIFS.filter((n) => !n.read).length;
-
   return (
-    <nav
-      style={{
-        background: "rgba(248, 249, 250, 0.95)", // Changed to off-white
-        backdropFilter: "blur(18px)",
-        borderBottom: "1px solid rgba(0, 0, 0, 0.08)", // Adjusted border for light background
-        padding: "0 24px",
-        display: "flex",
-        alignItems: "center",
-        height: 70,
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        gap: 12,
-      }}
-      onClick={() => notifOpen && setNotifOpen(false)}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          cursor: "pointer",
-          marginRight: 18,
-        }}
-        onClick={() => onNavigate("home")}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: T.grad1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 18,
-            boxShadow: "0 4px 16px rgba(255,107,53,0.4)",
-          }}>
-          🏠
-        </div>
-        <span
-          style={{
-            fontFamily: T.font,
-            fontWeight: 900,
-            fontSize: 18,
-            background: T.grad1,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>
-          ServiHub
-        </span>
+    <header className="h-[48px] bg-[#F7F6F2] border-b border-black/5 flex items-center justify-between px-[41px] sticky top-0 z-50">
+      {/* Left: Logo */}
+      <div 
+        onClick={() => onNavigate("home")} 
+        className="cursor-pointer flex items-center text-[25px] tracking-tight font-bold select-none"
+      >
+        <span className="text-[#E8AE3F]">Home</span>
+        <span className="text-[#17181A]">Service</span>
       </div>
 
-      <div style={{ display: "flex", gap: 2, flex: 1, flexWrap: "wrap" }}>
-        {navLinks.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => onNavigate(n.id)}
-            style={{
-              background: page === n.id ? "rgba(255,107,53,0.15)" : "transparent",
-              border: `1px solid ${page === n.id ? "rgba(255,107,53,0.4)" : "transparent"}`,
-              borderRadius: 8,
-              padding: "6px 14px",
-              color: page === n.id ? T.orange : "#4A5568", // Updated muted text color for light bg
-              fontWeight: page === n.id ? 700 : 500,
-              cursor: "pointer",
-              fontSize: 13,
-              fontFamily: T.font,
-              transition: "all .2s",
-            }}>
-            {n.l}
-          </button>
-        ))}
-      </div>
+      {/* Right: Provider link, Location selector, Profile button */}
+      <div className="flex items-center gap-6">
+        <button
+          onClick={() => onNavigate("auth")}
+          className="text-[12px] font-normal text-[#17181A] hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer"
+        >
+          Become a Provider
+        </button>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        {loggedIn && (
-          <div style={{ position: "relative" }}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setNotifOpen(!notifOpen);
-              }}
-              style={{
-                background: "rgba(0, 0, 0, 0.05)", // Adjusted for light background
-                border: "1px solid rgba(0, 0, 0, 0.1)", // Adjusted for light background
-                borderRadius: 10,
-                width: 38,
-                height: 38,
-                cursor: "pointer",
-                fontSize: 16,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-              🔔
-            </button>
-            {unread > 0 && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: -4,
-                  right: -4,
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  background: T.danger,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}>
-                <span style={{ fontFamily: T.font, fontSize: 10, color: "white", fontWeight: 800 }}>
-                  {unread}
-                </span>
-              </div>
-            )}
-            {notifOpen && (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  position: "absolute",
-                  top: 46,
-                  right: 0,
-                  background: "#FFFFFF", // Light background for notification dropdown
-                  border: "1px solid rgba(0,0,0,0.1)",
-                  borderRadius: 16,
-                  width: 320,
-                  overflow: "hidden",
-                  boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-                }}>
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    fontFamily: T.font,
-                    fontWeight: 700,
-                    color: "#1A202C",
-                    fontSize: 14,
-                    borderBottom: "1px solid rgba(0,0,0,0.07)",
-                  }}>
-                  Notifications
-                </div>
-                {NOTIFS.map((n) => (
-                  <div
-                    key={n.id}
-                    style={{
-                      padding: "11px 16px",
-                      borderBottom: "1px solid rgba(0,0,0,0.05)",
-                      background: n.read ? "transparent" : "rgba(255,107,53,0.05)",
-                      display: "flex",
-                      gap: 12,
-                      alignItems: "flex-start",
-                    }}>
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 10,
-                        background: n.color + "22",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 14,
-                        flexShrink: 0,
-                      }}>
-                      {n.icon}
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: T.font, fontSize: 13, color: "#2D3748", lineHeight: 1.4 }}>
-                        {n.msg}
-                      </div>
-                      <div style={{ fontFamily: T.font, fontSize: 11, color: "#718096", marginTop: 2 }}>
-                        {n.time}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        <div className="w-[181px] h-[31px] bg-white border border-black/10 rounded-[6px] shadow-xs flex items-center justify-between px-2.5 text-[13px] text-[#17181A] cursor-pointer">
+          <div className="flex items-center gap-1.5 truncate">
+            <MapPin className="w-3.5 h-3.5 text-[#17181A]/60 shrink-0" />
+            <span className="truncate font-medium">Kathmandu</span>
           </div>
-        )}
-        {loggedIn ? (
-          <button
-            onClick={() => onLogout()}
-            style={{ ...btnG, padding: "7px 14px", fontSize: 12 }}>
-            Logout
-          </button>
-        ) : (
-          <button
-            onClick={() => onNavigate("auth")}
-            style={{
-              background: T.grad1,
-              border: "none",
-              borderRadius: 10,
-              padding: "8px 20px",
-              color: "white",
-              fontWeight: 800,
-              fontSize: 13,
-              cursor: "pointer",
-              fontFamily: T.font,
-              boxShadow: "0 4px 18px rgba(255,107,53,0.35)",
-            }}>
-            Get Started
-          </button>
-        )}
+          <ChevronDown className="w-3.5 h-3.5 text-[#17181A]/60 shrink-0" />
+        </div>
+
+        <button
+          onClick={() => {
+            if (loggedIn) {
+              if (userType === "admin") onNavigate("admin");
+              else if (userType === "provider") onNavigate("provider");
+              else onNavigate("profile");
+            } else {
+              onNavigate("auth");
+            }
+          }}
+          className="w-[35px] h-[35px] rounded-full bg-[#F4F3EE] border border-black/5 flex items-center justify-center text-[#17181A]/80 hover:bg-[#EAE8E1] transition-colors cursor-pointer"
+          title={loggedIn ? "Profile / Dashboard" : "Sign In"}
+        >
+          <UserRound className="w-[18px] h-[18px]" />
+        </button>
       </div>
-    </nav>
+    </header>
   );
 }
