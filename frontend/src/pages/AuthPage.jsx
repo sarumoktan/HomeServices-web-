@@ -1,6 +1,4 @@
 import React, { useState, useRef } from "react";
-import { T } from "../constants/theme";
-import { card, btnP, inp } from "../constants/styles";
 
 export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }) {
   const [step, setStep] = useState("auth");
@@ -57,7 +55,6 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
       
       const data = await response.json();
       if (!response.ok) {
-        console.error("Server validation error details:", data);
         const detailedError = data.errors ? data.errors.map(err => err.message).join(", ") : data.message;
         throw new Error(detailedError || "Failed to send verification code.");
       }
@@ -142,106 +139,39 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "calc(100vh - 62px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 24,
-        background: T.bg || "#fdfbf7",
-      }}
-    >
-      <div
-        style={{
-          ...card,
-          width: "min(420px, 100%)",
-          padding: "36px 28px",
-          textAlign: "center",
-          background: "#fdfbf7",
-          boxShadow: "none",
-        }}
-      >
+    <div className="min-h-[calc(100vh-62px)] flex items-center justify-center p-6 bg-[#F4F3EE] font-sans">
+      <div className="w-[min(420px,100%)] p-9 text-center bg-white border border-stone-200 rounded-2xl shadow-sm">
+        
         {step === "auth" && (
           <>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontWeight: 800,
-                fontSize: 32,
-                marginBottom: 16,
-                letterSpacing: "-0.5px",
-              }}
-            >
-              <span style={{ color: "#ff6b35" }}>Home</span>{" "}
-              <span style={{ color: "#2c3e50", fontWeight: 400 }}>service</span>
+            <div className="font-extrabold text-[32px] mb-4 tracking-tight">
+              <span className="text-[#E8AE3F]">Home</span>{" "}
+              <span className="text-stone-900 font-normal">service</span>
             </div>
 
-            <div
-              style={{
-                fontFamily: T.font,
-                color: "#2c3e50",
-                fontSize: 15,
-                lineHeight: 1.5,
-                marginBottom: 28,
-                maxWidth: 320,
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-            >
+            <p className="text-stone-600 text-[15px] leading-relaxed mb-7 max-w-[320px] mx-auto">
               We'll sign you in or create a new account if you don't have one yet.
-            </div>
+            </p>
 
             {errorMsg && (
-              <div
-                style={{
-                  marginBottom: 16,
-                  padding: "10px",
-                  background: "rgba(255,0,0,0.1)",
-                  borderRadius: 8,
-                  color: "#ff6b6b",
-                  fontSize: 13,
-                  fontFamily: T.font,
-                }}
-              >
+              <div className="mb-4 p-2.5 bg-red-500/10 rounded-lg text-red-500 text-xs font-medium">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleAuthSubmit}>
-              <div style={{ marginBottom: 16 }}>
+              <div className="mb-4">
                 <input
                   type={useEmail ? "email" : "text"}
                   required
                   placeholder={useEmail ? "name@example.com" : "Phone number"}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  style={{
-                    ...inp,
-                    height: 52,
-                    borderRadius: 12,
-                    border: "1.5px solid #ff6b35",
-                    background: "#ffffff",
-                    textAlign: "left",
-                    padding: "0 16px",
-                    fontSize: 16,
-                    outline: "none",
-                    boxShadow: "0 2px 6px rgba(255, 107, 53, 0.08)",
-                    color: "#2c3e50",
-                    width: "100%",
-                  }}
+                  className="w-full h-[52px] rounded-xl border-1.5 border-[#E8AE3F] bg-white text-stone-900 px-4 text-base outline-none shadow-sm transition focus:border-amber-600"
                 />
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  gap: 12,
-                  marginBottom: 24,
-                }}
-              >
+              <div className="flex items-center justify-start gap-3 mb-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -249,40 +179,17 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                     setIdentifier("");
                     setErrorMsg("");
                   }}
-                  style={{
-                    width: 48,
-                    height: 26,
-                    borderRadius: 13,
-                    background: useEmail ? "#ff6b35" : "#d1d5db",
-                    border: "none",
-                    position: "relative",
-                    cursor: "pointer",
-                    transition: "background 0.2s",
-                    padding: 0,
-                  }}
+                  className={`w-12 h-[26px] rounded-full relative cursor-pointer transition-colors p-0 border-none ${
+                    useEmail ? "bg-[#E8AE3F]" : "bg-stone-300"
+                  }`}
                 >
                   <span
-                    style={{
-                      position: "absolute",
-                      top: 3,
-                      left: useEmail ? 25 : 3,
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      background: "white",
-                      transition: "left 0.2s",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                    }}
+                    className={`absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ${
+                      useEmail ? "left-[25px]" : "left-[3px]"
+                    }`}
                   />
                 </button>
-                <span
-                  style={{
-                    fontFamily: T.font,
-                    fontSize: 15,
-                    color: "#2c3e50",
-                    fontWeight: 500,
-                  }}
-                >
+                <span className="text-stone-800 text-[15px] font-medium">
                   Use Email
                 </span>
               </div>
@@ -290,22 +197,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
               <button
                 type="submit"
                 disabled={loading}
-                style={{
-                  ...btnP,
-                  width: "100%",
-                  height: 52,
-                  borderRadius: 12,
-                  background: "#38bdf8",
-                  border: "none",
-                  color: "white",
-                  fontSize: 16,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(56, 189, 248, 0.3)",
-                  marginBottom: 28,
-                  transition: "opacity 0.2s",
-                  opacity: loading ? 0.7 : 1,
-                }}
+                className="w-full h-[52px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-base font-semibold cursor-pointer shadow-md shadow-sky-500/20 mb-7 transition opacity-disabled:70 flex items-center justify-center"
               >
                 {loading ? "Please wait..." : "Continue"}
               </button>
@@ -314,48 +206,30 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
         )}
 
         {step === "otp" && (
-          <form onSubmit={handleVerifyOtpSubmit} style={{ textAlign: "center" }}>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontWeight: 800,
-                fontSize: 26,
-                marginBottom: 12,
-                color: "#2c3e50",
-              }}
-            >
+          <form onSubmit={handleVerifyOtpSubmit} className="text-center">
+            <h2 className="font-extrabold text-[26px] mb-3 text-stone-900">
               Enter Verification Code
-            </div>
+            </h2>
 
-            <div style={{ fontSize: 14, color: "#64748b", marginBottom: 20, fontFamily: T.font }}>
+            <div className="text-sm text-stone-500 mb-5">
               We sent a temporary 6-digit code to your {useEmail ? "email" : "phone number"}:<br />
-              <strong style={{ color: "#2c3e50" }}>{identifier}</strong>{" "}
+              <strong className="text-stone-900">{identifier}</strong>{" "}
               <button
                 type="button"
                 onClick={() => setStep("auth")}
-                style={{ background: "none", border: "none", color: "#ff6b35", cursor: "pointer", fontSize: 13, fontWeight: 500 }}
+                className="bg-transparent border-none text-[#E8AE3F] cursor-pointer text-xs font-medium hover:underline"
               >
                 [Change]
               </button>
             </div>
 
             {errorMsg && (
-              <div
-                style={{
-                  marginBottom: 16,
-                  padding: "10px",
-                  background: "rgba(255,0,0,0.1)",
-                  borderRadius: 8,
-                  color: "#ff6b6b",
-                  fontSize: 13,
-                  fontFamily: T.font,
-                }}
-              >
+              <div className="mb-4 p-2.5 bg-red-500/10 rounded-lg text-red-500 text-xs font-medium">
                 {errorMsg}
               </div>
             )}
 
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 28 }}>
+            <div className="flex justify-center gap-2 mb-7">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -365,19 +239,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                   value={digit}
                   onChange={(e) => handleOtpChange(e.target, index)}
                   onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                  style={{
-                    width: 44,
-                    height: 48,
-                    textAlign: "center",
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    borderRadius: 10,
-                    border: "1.5px solid #ff6b35",
-                    background: "#ffffff",
-                    color: "#2c3e50",
-                    outline: "none",
-                    boxShadow: "0 2px 6px rgba(255, 107, 53, 0.08)",
-                  }}
+                  className="w-[44px] h-[48px] text-center text-xl font-bold rounded-xl border-1.5 border-[#E8AE3F] bg-white text-stone-900 outline-none shadow-sm focus:border-amber-600"
                 />
               ))}
             </div>
@@ -385,20 +247,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
             <button
               type="submit"
               disabled={loading}
-              style={{
-                ...btnP,
-                width: "100%",
-                height: 52,
-                borderRadius: 12,
-                background: "#38bdf8",
-                border: "none",
-                color: "white",
-                fontSize: 16,
-                fontWeight: 600,
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(56, 189, 248, 0.3)",
-                opacity: loading ? 0.7 : 1,
-              }}
+              className="w-full h-[52px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-base font-semibold cursor-pointer shadow-md shadow-sky-500/20 transition flex items-center justify-center"
             >
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
@@ -406,104 +255,64 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
         )}
 
         {step === "profile" && (
-          <form onSubmit={handleCompleteProfileSubmit} style={{ textAlign: "left" }}>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontWeight: 800,
-                fontSize: 26,
-                marginBottom: 6,
-                textAlign: "center",
-                color: "#2c3e50",
-              }}
-            >
+          <form onSubmit={handleCompleteProfileSubmit} className="text-left">
+            <h2 className="font-extrabold text-[26px] mb-1.5 text-center text-stone-900">
               Complete Profile
-            </div>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontSize: 14,
-                color: "#64748b",
-                marginBottom: 20,
-                textAlign: "center",
-              }}
-            >
+            </h2>
+            <p className="text-sm text-stone-500 mb-5 text-center">
               Please provide your details to finish setting up your account.
-            </div>
+            </p>
 
             {errorMsg && (
-              <div
-                style={{
-                  marginBottom: 16,
-                  padding: "10px",
-                  background: "rgba(255,0,0,0.1)",
-                  borderRadius: 8,
-                  color: "#ff6b6b",
-                  fontSize: 13,
-                  fontFamily: T.font,
-                }}
-              >
+              <div className="mb-4 p-2.5 bg-red-500/10 rounded-lg text-red-500 text-xs font-medium">
                 {errorMsg}
               </div>
             )}
 
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontFamily: T.font, fontSize: 13, color: "#2c3e50", fontWeight: 500, marginBottom: 6 }}>
-                First Name <span style={{ color: "#ff6b35" }}>*</span>
-              </div>
+            <div className="mb-3.5">
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                First Name <span className="text-[#E8AE3F]">*</span>
+              </label>
               <input
                 type="text"
                 required
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                style={{ ...inp, height: 48, borderRadius: 10, border: "1.5px solid #d1d5db", background: "#ffffff", color: "#2c3e50", padding: "0 14px", fontSize: 15, outline: "none", width: "100%" }}
+                className="w-full h-[48px] rounded-xl border border-stone-200 bg-white text-stone-900 px-3.5 text-sm outline-none focus:border-stone-400"
               />
             </div>
 
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontFamily: T.font, fontSize: 13, color: "#2c3e50", fontWeight: 500, marginBottom: 6 }}>
-                Last Name <span style={{ color: "#ff6b35" }}>*</span>
-              </div>
+            <div className="mb-3.5">
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                Last Name <span className="text-[#E8AE3F]">*</span>
+              </label>
               <input
                 type="text"
                 required
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                style={{ ...inp, height: 48, borderRadius: 10, border: "1.5px solid #d1d5db", background: "#ffffff", color: "#2c3e50", padding: "0 14px", fontSize: 15, outline: "none", width: "100%" }}
+                className="w-full h-[48px] rounded-xl border border-stone-200 bg-white text-stone-900 px-3.5 text-sm outline-none focus:border-stone-400"
               />
             </div>
 
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontFamily: T.font, fontSize: 13, color: "#2c3e50", fontWeight: 500, marginBottom: 6 }}>
-                Address <span style={{ color: "#ff6b35" }}>*</span>
-              </div>
+            <div className="mb-5">
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                Address <span className="text-[#E8AE3F]">*</span>
+              </label>
               <input
                 type="text"
                 required
                 placeholder="eg: Baluwatar, Kathmandu"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                style={{ ...inp, height: 48, borderRadius: 10, border: "1.5px solid #d1d5db", background: "#ffffff", color: "#2c3e50", padding: "0 14px", fontSize: 15, outline: "none", width: "100%" }}
+                className="w-full h-[48px] rounded-xl border border-stone-200 bg-white text-stone-900 px-3.5 text-sm outline-none focus:border-stone-400"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              style={{
-                ...btnP,
-                width: "100%",
-                height: 52,
-                borderRadius: 12,
-                background: "#38bdf8",
-                border: "none",
-                color: "white",
-                fontSize: 16,
-                fontWeight: 600,
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(56, 189, 248, 0.3)",
-                opacity: loading ? 0.7 : 1,
-              }}
+              className="w-full h-[52px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-base font-semibold cursor-pointer shadow-md shadow-sky-500/20 transition flex items-center justify-center"
             >
               {loading ? "Saving Profile..." : "Complete Profile"}
             </button>
