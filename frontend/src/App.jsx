@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { T } from "./constants/theme";
 import { PROVIDERS } from "./constants/data";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -11,7 +10,7 @@ import { HomePage } from "./pages/HomePage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { AuthPage } from "./pages/AuthPage";
 import { BookingsPage } from "./pages/BookingsPage";
-import { ProfilePage } from "./pages/ProfilePage";
+import ProfilePage from "./pages/ProfilePage";
 import { ProviderDashboard } from "./pages/ProviderDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
 
@@ -40,7 +39,6 @@ export default function App() {
   };
 
   const handleLogin = (type, data) => {
-    // store token and set current user from backend response
     if (data && data.token) {
       try {
         localStorage.setItem('token', data.token);
@@ -49,7 +47,6 @@ export default function App() {
     if (data && data.user) setCurrentUser(data.user);
     setLoggedIn(true);
     setUserType(type);
-    // navigate to profile for regular users, otherwise keep existing behavior
     const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "profile";
     go(target);
   };
@@ -61,13 +58,7 @@ export default function App() {
   };
 
   return (
-    <div
-      style={{
-        background: T.bg,
-        minHeight: "100vh",
-        color: T.text,
-        fontFamily: T.font,
-      }}>
+    <div className="bg-[#F4F3EE] min-h-screen text-stone-900 font-sans selection:bg-[#E8AE3F]/30">
       <Navbar
         page={page}
         loggedIn={loggedIn}
@@ -146,7 +137,7 @@ export default function App() {
         />
       )}
 
-      <Footer />
+      <Footer onNavigate={go} />
     </div>
   );
 }
