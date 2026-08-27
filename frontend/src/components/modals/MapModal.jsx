@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { T } from "../../constants/theme";
-import { card, btnP } from "../../constants/styles";
+import React, { useState } from "react";
 import { Overlay } from "../Overlay";
+import { X, MapPin, Star, ArrowRight } from "lucide-react";
 
 export function MapModal({ onClose }) {
   const [sel, setSel] = useState(null);
@@ -15,30 +14,29 @@ export function MapModal({ onClose }) {
 
   return (
     <Overlay>
-      <div style={{ ...card, width: "min(760px,96vw)", overflow: "hidden" }}>
-        <div style={{ background: T.grad2, padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ fontFamily: T.font, fontWeight: 800, color: "white", fontSize: 16 }}>
-            📍 Nearby Providers — Kathmandu
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[760px] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#2E4CDB] to-[#233EC2] px-5 py-3.5 flex justify-between items-center">
+          <div className="flex items-center gap-2 font-bold text-white text-base">
+            <MapPin className="w-5 h-5 text-[#E8AE3F]" />
+            <span>Nearby Providers — Kathmandu</span>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: "rgba(0,0,0,0.2)",
-              border: "none",
-              borderRadius: 8,
-              width: 30,
-              height: 30,
-              color: "white",
-              cursor: "pointer",
-              fontSize: 16,
-            }}>
-            ✕
+            className="w-8 h-8 rounded-lg bg-black/20 hover:bg-black/30 flex items-center justify-center text-white transition-colors"
+            aria-label="Close map"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div style={{ display: "flex", height: 420 }}>
-          <div style={{ flex: 1, position: "relative", background: "linear-gradient(160deg,#06060F,#0A0A22)" }}>
-            <svg width="100%" height="100%">
+        {/* Content Layout */}
+        <div className="flex flex-col sm:flex-row h-[420px]">
+          
+          {/* Map Area */}
+          <div className="flex-1 relative bg-gradient-to-br from-[#06060F] to-[#0A0A22] overflow-hidden">
+            <svg className="w-full h-full">
               {[...Array(14)].map((_, i) => (
                 <line
                   key={`h${i}`}
@@ -94,85 +92,66 @@ export function MapModal({ onClose }) {
               <circle cx="45%" cy="45%" r="20" fill="rgba(79,172,254,0.1)" />
               <circle cx="45%" cy="45%" r="11" fill="rgba(79,172,254,0.22)" />
               <circle cx="45%" cy="45%" r="6" fill="#4facfe" />
-              {pins.map((pin) => (
-                <g key={pin.id} onClick={() => setSel(sel?.id === pin.id ? null : pin)} style={{ cursor: "pointer" }}>
-                  <circle
-                    cx={`${pin.x}%`}
-                    cy={`${pin.y}%`}
-                    r="22"
-                    fill={sel?.id === pin.id ? "rgba(255,107,53,0.22)" : "rgba(255,255,255,0.04)"}
-                  />
-                  <circle
-                    cx={`${pin.x}%`}
-                    cy={`${pin.y}%`}
-                    r="14"
-                    fill={sel?.id === pin.id ? "#FF6B35" : "#1E1E40"}
-                    stroke={sel?.id === pin.id ? "#FF6B35" : "rgba(255,255,255,0.2)"}
-                    strokeWidth="1.5"
-                  />
-                  <text
-                    x={`${pin.x}%`}
-                    y={`${pin.y + 0.6}%`}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill="white"
-                    fontSize="9"
-                    fontFamily={T.font}
-                    fontWeight="700">
-                    {pin.service.slice(0, 4)}
-                  </text>
-                </g>
-              ))}
+              
+              {pins.map((pin) => {
+                const isSelected = sel?.id === pin.id;
+                return (
+                  <g 
+                    key={pin.id} 
+                    onClick={() => setSel(isSelected ? null : pin)} 
+                    className="cursor-pointer"
+                  >
+                    <circle
+                      cx={`${pin.x}%`}
+                      cy={`${pin.y}%`}
+                      r="22"
+                      fill={isSelected ? "rgba(232,174,63,0.25)" : "rgba(255,255,255,0.04)"}
+                    />
+                    <circle
+                      cx={`${pin.x}%`}
+                      cy={`${pin.y}%`}
+                      r="14"
+                      fill={isSelected ? "#E8AE3F" : "#1E1E40"}
+                      stroke={isSelected ? "#E8AE3F" : "rgba(255,255,255,0.2)"}
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x={`${pin.x}%`}
+                      y={`${pin.y + 0.6}%`}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="white"
+                      fontSize="9"
+                      fontWeight="700"
+                    >
+                      {pin.service.slice(0, 4)}
+                    </text>
+                  </g>
+                );
+              })}
             </svg>
+
+            {/* Selected Pin Popup Card */}
             {sel && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 14,
-                  left: 12,
-                  right: 12,
-                  background: "rgba(15,15,35,0.97)",
-                  border: "1px solid rgba(255,107,53,0.4)",
-                  borderRadius: 14,
-                  padding: "13px 16px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}>
+              <div className="absolute bottom-3.5 left-3 right-3 bg-[#0F0F23]/95 backdrop-blur-md border border-[#E8AE3F]/40 rounded-xl p-3.5 flex justify-between items-center shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-150">
                 <div>
-                  <div style={{ fontFamily: T.font, fontWeight: 800, color: T.text, fontSize: 15 }}>
-                    {sel.name}
-                  </div>
-                  <div style={{ fontFamily: T.font, color: T.muted, fontSize: 12 }}>
-                    {sel.service} · ⭐ {sel.rating}
+                  <div className="font-bold text-white text-sm">{sel.name}</div>
+                  <div className="text-white/70 text-xs flex items-center gap-1.5 mt-0.5">
+                    <span>{sel.service}</span>
+                    <span>·</span>
+                    <span className="flex items-center gap-0.5 text-[#E8AE3F]">
+                      <Star className="w-3 h-3 fill-current" /> {sel.rating}
+                    </span>
                   </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div
-                    style={{
-                      fontFamily: T.font,
-                      fontWeight: 900,
-                      background: T.grad1,
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      fontSize: 16,
-                    }}>
+                <div className="text-right">
+                  <div className="font-extrabold text-[#E8AE3F] text-sm">
                     NPR {sel.price}/hr
                   </div>
                   <button
                     onClick={onClose}
-                    style={{
-                      marginTop: 5,
-                      background: T.grad1,
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "4px 14px",
-                      color: "white",
-                      fontSize: 11,
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      fontFamily: T.font,
-                    }}>
+                    className="mt-1 bg-[#2E4CDB] hover:bg-[#233EC2] text-white px-3.5 py-1 rounded-lg text-xs font-bold transition-colors shadow-sm"
+                  >
                     Book Now
                   </button>
                 </div>
@@ -180,55 +159,36 @@ export function MapModal({ onClose }) {
             )}
           </div>
 
-          <div style={{ width: 200, borderLeft: "1px solid rgba(255,255,255,0.07)", overflowY: "auto" }}>
-            <div
-              style={{
-                padding: "12px 14px",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
-                fontFamily: T.font,
-                fontSize: 12,
-                color: T.muted,
-                fontWeight: 700,
-              }}>
+          {/* Sidebar Provider List */}
+          <div className="w-full sm:w-[200px] border-t sm:border-t-0 sm:border-l border-black/10 bg-white overflow-y-auto max-h-[180px] sm:max-h-none">
+            <div className="p-3 border-b border-black/5 text-xs font-bold text-[#17181A]/60 uppercase tracking-wider">
               5 Providers Nearby
             </div>
-            {pins.map((pin) => (
-              <div
-                key={pin.id}
-                onClick={() => setSel(sel?.id === pin.id ? null : pin)}
-                style={{
-                  padding: "12px 14px",
-                  borderBottom: "1px solid rgba(255,255,255,0.05)",
-                  cursor: "pointer",
-                  background: sel?.id === pin.id ? "rgba(255,107,53,0.08)" : "transparent",
-                }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div
-                    style={{ width: 8, height: 8, borderRadius: 4, background: T.orange, flexShrink: 0 }}
-                  />
-                  <div>
-                    <div style={{ fontFamily: T.font, fontWeight: 700, color: T.text, fontSize: 12 }}>
-                      {pin.name}
-                    </div>
-                    <div style={{ fontFamily: T.font, color: T.muted, fontSize: 11 }}>
-                      {pin.service}
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: T.font,
-                        background: T.grad1,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        fontSize: 11,
-                        fontWeight: 800,
-                      }}>
-                      NPR {pin.price}/hr
+            {pins.map((pin) => {
+              const isSelected = sel?.id === pin.id;
+              return (
+                <div
+                  key={pin.id}
+                  onClick={() => setSel(isSelected ? null : pin)}
+                  className={`p-3 border-b border-black/5 cursor-pointer transition-colors ${
+                    isSelected ? "bg-[#2E4CDB]/5 border-l-4 border-l-[#2E4CDB]" : "hover:bg-black/[02%]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-2 h-2 rounded-full bg-[#E8AE3F] shrink-0" />
+                    <div className="min-w-0">
+                      <div className="font-bold text-[#17181A] text-xs truncate">{pin.name}</div>
+                      <div className="text-[#17181A]/60 text-[11px] truncate">{pin.service}</div>
+                      <div className="font-extrabold text-[#2E4CDB] text-[11px] mt-0.5">
+                        NPR {pin.price}/hr
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+
         </div>
       </div>
     </Overlay>
