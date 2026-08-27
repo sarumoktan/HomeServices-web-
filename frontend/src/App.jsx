@@ -47,7 +47,9 @@ export default function App() {
     if (data && data.user) setCurrentUser(data.user);
     setLoggedIn(true);
     setUserType(type);
-    const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "profile";
+    
+    // Send normal users to "home" instead of "profile" after login
+    const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "home";
     go(target);
   };
 
@@ -65,7 +67,9 @@ export default function App() {
         onLogout={handleLogout}
         onNavigate={go}
         userType={userType}
+        currentUser={currentUser}
       />
+      
 
       {/* MODALS */}
       {showMap && <MapModal onClose={() => setShowMap(false)} />}
@@ -118,7 +122,8 @@ export default function App() {
         />
       )}
 
-      {page === "profile" && <ProfilePage user={currentUser} />}
+      {/* CHANGED HERE: Added onNavigate={go} so ProfilePage can switch back to home */}
+      {page === "profile" && <ProfilePage user={currentUser} onNavigate={go} />} 
 
       {page === "provider-dash" && (
         <ProviderDashboard
