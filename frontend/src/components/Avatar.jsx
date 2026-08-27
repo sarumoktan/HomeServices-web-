@@ -1,32 +1,29 @@
-import { T } from "../constants/theme";
+import React from "react";
 
-export function Avatar({ initials, gradient, size = 48 }) {
-  const grads = {
-    orange: "linear-gradient(135deg,#FF6B35,#F7931E)",
-    green: "linear-gradient(135deg,#11998E,#38EF7D)",
-    blue: "linear-gradient(135deg,#667EEA,#764BA2)",
-    purple: "linear-gradient(135deg,#F093FB,#F5576C)",
-    teal: "linear-gradient(135deg,#4facfe,#00f2fe)",
-    pink: "linear-gradient(135deg,#FC466B,#3F5EFB)",
-  };
+export function Avatar({ src, name, size = "md", className = "" }) {
+  const sizeClasses = {
+    sm: "w-8 h-8 text-xs",
+    md: "w-10 h-10 text-sm",
+    lg: "w-14 h-14 text-base",
+    xl: "w-20 h-20 text-xl"
+  }[size] || "w-10 h-10 text-sm";
+
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name || "Avatar"}
+        className={`${sizeClasses} rounded-full object-cover bg-[#F4F3EE] ${className}`}
+      />
+    );
+  }
+
+  const initials = name
+    ? name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    : "HS";
+
   return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: Math.round(size * 0.28),
-        background: grads[gradient] || grads.blue,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 800,
-        color: "white",
-        fontSize: Math.round(size * 0.32),
-        fontFamily: T.font,
-        flexShrink: 0,
-        letterSpacing: 1,
-        boxShadow: `0 4px 16px ${grads[gradient] || grads.blue}55`,
-      }}>
+    <div className={`${sizeClasses} rounded-full bg-[#2E4CDB]/10 text-[#2E4CDB] font-semibold flex items-center justify-center select-none ${className}`}>
       {initials}
     </div>
   );
