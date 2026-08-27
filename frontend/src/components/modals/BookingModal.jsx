@@ -1,272 +1,132 @@
-import { useState } from "react";
-import { T } from "../../constants/theme";
-import { card, btnP, btnG, inp } from "../../constants/styles";
-import { SERVICES } from "../../constants/data";
-import { Overlay } from "../Overlay";
-import { Avatar } from "../Avatar";
+import React, { useState } from "react";
+import { X, Calendar, Clock, MapPin, CheckCircle2 } from "lucide-react";
 
-export function BookingModal({ provider, onClose }) {
-  const [step, setStep] = useState(1);
+export function BookingModal({ provider, service, onClose, onConfirm }) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [addr, setAddr] = useState("Thamel, Kathmandu");
-  const [pay, setPay] = useState("card");
-  const [done, setDone] = useState(false);
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
-  if (done)
-    return (
-      <Overlay>
-        <div
-          style={{
-            ...card,
-            padding: 40,
-            textAlign: "center",
-            maxWidth: 360,
-            width: "100%",
-            border: "1px solid rgba(56,239,125,0.3)",
-          }}>
-          <div
-            style={{
-              width: 76,
-              height: 76,
-              borderRadius: 38,
-              background: "linear-gradient(135deg,#11998E,#38EF7D)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 34,
-              margin: "0 auto 20px",
-            }}>
-            ✅
-          </div>
-          <div style={{ fontFamily: T.font, fontWeight: 900, fontSize: 22, color: T.text, marginBottom: 8 }}>
-            Booking Confirmed!
-          </div>
-          <div style={{ fontFamily: T.font, color: T.muted, fontSize: 14, marginBottom: 5 }}>
-            ID: <span style={{ color: T.teal, fontWeight: 700 }}>#BK2406</span>
-          </div>
-          <div style={{ fontFamily: T.font, color: T.muted, fontSize: 13, marginBottom: 28 }}>
-            {provider.name} arrives {time || "10:00 AM"} · {date || "Apr 12, 2025"}
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              ...btnP,
-              background: "linear-gradient(135deg,#11998E,#38EF7D)",
-              color: "#0A1A0A",
-            }}>
-            Done
-          </button>
-        </div>
-      </Overlay>
-    );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setTimeout(() => {
+      onConfirm?.({ provider, service, date, time, address, notes });
+      onClose();
+    }, 1200);
+  };
 
   return (
-    <Overlay>
-      <div style={{ ...card, width: "min(490px,100%)", overflow: "hidden" }}>
-        <div style={{ background: T.grad1, padding: "18px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontFamily: T.font, fontWeight: 900, color: "white", fontSize: 16 }}>
-              Book {provider.name}
-            </div>
-            <div style={{ fontFamily: T.font, color: "rgba(255,255,255,0.7)", fontSize: 12 }}>
-              Step {step} of 3
-            </div>
-          </div>
-          <button
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/5">
+          <h2 className="text-lg font-bold text-[#17181A]">Book Service</h2>
+          <button 
             onClick={onClose}
-            style={{
-              background: "rgba(0,0,0,0.2)",
-              border: "none",
-              borderRadius: 8,
-              width: 30,
-              height: 30,
-              color: "white",
-              cursor: "pointer",
-              fontSize: 16,
-            }}>
-            ✕
+            className="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center text-[#17181A]/60 transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: 3, padding: "12px 20px 0" }}>
-          {[1, 2, 3].map((n) => (
-            <div
-              key={n}
-              style={{
-                flex: 1,
-                height: 4,
-                borderRadius: 2,
-                background: n <= step ? T.orange : "rgba(255,255,255,0.1)",
-              }}
-            />
-          ))}
-        </div>
-
-        <div style={{ padding: "16px 20px 22px" }}>
-          {step === 1 && (
-            <>
-              <div style={{ fontFamily: T.font, color: T.muted, fontSize: 12, marginBottom: 14 }}>
-                Schedule your service
-              </div>
-              <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>
-                    Date
-                  </div>
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={inp} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>
-                    Time
-                  </div>
-                  <input type="time" value={time} onChange={(e) => setTime(e.target.value)} style={inp} />
-                </div>
-              </div>
-              <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>
-                Address
-              </div>
-              <input value={addr} onChange={(e) => setAddr(e.target.value)} style={{ ...inp, marginBottom: 12 }} />
-              <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginBottom: 6 }}>
-                Notes (optional)
-              </div>
-              <textarea
-                rows={2}
-                placeholder="E.g. Ring bell on 3rd floor"
-                style={{ ...inp, resize: "none" }}
-              />
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <div style={{ fontFamily: T.font, color: T.muted, fontSize: 12, marginBottom: 14 }}>
-                Choose payment method
-              </div>
-              {[
-                ["card", "💳", "Credit / Debit Card"],
-                ["esewa", "🟢", "eSewa"],
-                ["cash", "💵", "Cash on Service"],
-              ].map(([id, icon, label]) => (
-                <div
-                  key={id}
-                  onClick={() => setPay(id)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "12px 16px",
-                    borderRadius: 12,
-                    border: `1.5px solid ${pay === id ? T.orange : "rgba(255,255,255,0.1)"}`,
-                    background: pay === id ? "rgba(255,107,53,0.1)" : "rgba(255,255,255,0.03)",
-                    marginBottom: 10,
-                    cursor: "pointer",
-                    transition: "all .2s",
-                  }}>
-                  <span style={{ fontSize: 20 }}>{icon}</span>
-                  <span style={{ fontFamily: T.font, fontWeight: 600, color: T.text, fontSize: 14 }}>
-                    {label}
-                  </span>
-                  {pay === id && (
-                    <span style={{ marginLeft: "auto", color: T.orange, fontSize: 18, fontWeight: 900 }}>
-                      ✓
-                    </span>
-                  )}
-                </div>
-              ))}
-              {pay === "card" && (
-                <div style={{ marginTop: 10 }}>
-                  <input placeholder="1234 5678 9012 3456" style={{ ...inp, marginBottom: 10 }} />
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <input placeholder="MM/YY" style={{ ...inp, flex: 1 }} />
-                    <input placeholder="CVV" style={{ ...inp, flex: 1 }} />
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {step === 3 && (
-            <>
-              <div style={{ fontFamily: T.font, color: T.muted, fontSize: 12, marginBottom: 14 }}>
-                Review your booking
-              </div>
-              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 14, padding: 16, marginBottom: 14 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginBottom: 14,
-                    paddingBottom: 14,
-                    borderBottom: "1px solid rgba(255,255,255,0.08)",
-                  }}>
-                  <Avatar initials={provider.initials} gradient={provider.grad} size={44} />
-                  <div>
-                    <div style={{ fontFamily: T.font, fontWeight: 700, color: T.text }}>
-                      {provider.name}
-                    </div>
-                    <div style={{ fontFamily: T.font, color: T.muted, fontSize: 12 }}>
-                      {provider.service}
-                    </div>
-                  </div>
-                </div>
-                {[
-                  ["Date", date || "Apr 12, 2025"],
-                  ["Time", time || "10:00 AM"],
-                  ["Address", addr],
-                  [
-                    "Payment",
-                    pay === "card" ? "Credit Card" : pay === "esewa" ? "eSewa" : "Cash",
-                  ],
-                ].map(([k, v]) => (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 9 }}>
-                    <span style={{ fontFamily: T.font, color: T.muted, fontSize: 13 }}>{k}</span>
-                    <span style={{ fontFamily: T.font, color: T.text, fontSize: 13, fontWeight: 600 }}>
-                      {v}
-                    </span>
-                  </div>
-                ))}
-                <div
-                  style={{
-                    borderTop: "1px solid rgba(255,255,255,0.08)",
-                    marginTop: 10,
-                    paddingTop: 12,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}>
-                  <span style={{ fontFamily: T.font, color: T.muted, fontWeight: 600 }}>Total</span>
-                  <span
-                    style={{
-                      fontFamily: T.font,
-                      fontWeight: 900,
-                      fontSize: 20,
-                      background: T.grad1,
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}>
-                    NPR {provider.price}
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-
-          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-            {step > 1 && (
-              <button onClick={() => setStep(step - 1)} style={{ ...btnG, flex: 1 }}>
-                ← Back
-              </button>
-            )}
-            <button
-              onClick={() => (step < 3 ? setStep(step + 1) : setDone(true))}
-              style={{ ...btnP, flex: 2, width: "auto" }}>
-              {step === 3 ? "🔒 Confirm & Pay" : "Continue →"}
-            </button>
+        {submitted ? (
+          <div className="p-12 text-center flex flex-col items-center justify-center space-y-4">
+            <CheckCircle2 className="w-16 h-16 text-emerald-600 animate-bounce" />
+            <h3 className="text-xl font-bold text-[#17181A]">Booking Confirmed!</h3>
+            <p className="text-sm text-[#17181A]/70">Your provider has been notified and will arrive on schedule.</p>
           </div>
-        </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {provider && (
+              <div className="bg-[#F7F6F2] p-3.5 rounded-xl border border-black/5 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#2E4CDB]/10 text-[#2E4CDB] flex items-center justify-center font-bold">
+                  {provider.name?.[0] || "P"}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#17181A]">{provider.name}</h4>
+                  <p className="text-xs text-[#17181A]/60">{service || provider.service || "Professional Service"}</p>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold text-[#17181A]/80 uppercase tracking-wider mb-1.5">Date</label>
+              <div className="flex items-center bg-[#F7F6F2] border border-black/10 rounded-lg px-3 py-2">
+                <Calendar className="w-4 h-4 text-[#17181A]/40 mr-2 shrink-0" />
+                <input
+                  type="date"
+                  required
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-transparent border-none outline-none text-sm text-[#17181A]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#17181A]/80 uppercase tracking-wider mb-1.5">Time Slot</label>
+              <div className="flex items-center bg-[#F7F6F2] border border-black/10 rounded-lg px-3 py-2">
+                <Clock className="w-4 h-4 text-[#17181A]/40 mr-2 shrink-0" />
+                <select
+                  required
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full bg-transparent border-none outline-none text-sm text-[#17181A]"
+                >
+                  <option value="">Select a time slot</option>
+                  <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                  <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                  <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                  <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#17181A]/80 uppercase tracking-wider mb-1.5">Service Address</label>
+              <div className="flex items-center bg-[#F7F6F2] border border-black/10 rounded-lg px-3 py-2">
+                <MapPin className="w-4 h-4 text-[#17181A]/40 mr-2 shrink-0" />
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter full address in Kathmandu"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full bg-transparent border-none outline-none text-sm text-[#17181A]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#17181A]/80 uppercase tracking-wider mb-1.5">Special Instructions (Optional)</label>
+              <textarea
+                rows="2"
+                placeholder="Gate code, specific issues, etc."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full bg-[#F7F6F2] border border-black/10 rounded-lg p-3 text-sm text-[#17181A] outline-none resize-none"
+              ></textarea>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-[#17181A]/70 hover:bg-black/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-[#2E4CDB] hover:bg-[#233EC2] text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Confirm Booking
+              </button>
+            </div>
+          </form>
+        )}
       </div>
-    </Overlay>
+    </div>
   );
 }
