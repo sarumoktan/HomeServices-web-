@@ -1,29 +1,20 @@
-import { useState, useEffect, useRef } from "react";
-import { T } from "../../constants/theme";
-import { card, inp } from "../../constants/styles";
+import React, { useState, useEffect, useRef } from "react";
 import { Overlay } from "../Overlay";
 import { Avatar } from "../Avatar";
+import { X, Send } from "lucide-react"; // Make sure to import icons
 
 export function ChatModal({ onClose }) {
   const [msgs, setMsgs] = useState([
     { id: 1, from: "p", text: "Hello! I'll be at your location by 10:15 AM.", time: "9:45 AM" },
-    {
-      id: 2,
-      from: "u",
-      text: "Great! Please bring the pipe fittings too.",
-      time: "9:47 AM",
-    },
-    {
-      id: 3,
-      from: "p",
-      text: "Sure, I have everything. See you soon! 👍",
-      time: "9:48 AM",
-    },
+    { id: 2, from: "u", text: "Great! Please bring the pipe fittings too.", time: "9:47 AM" },
+    { id: 3, from: "p", text: "Sure, I have everything. See you soon! 👍", time: "9:48 AM" },
   ]);
   const [inp2, setInp2] = useState("");
   const ref = useRef(null);
 
-  useEffect(() => ref.current?.scrollIntoView({ behavior: "smooth" }), [msgs]);
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs]);
 
   const send = () => {
     if (!inp2.trim()) return;
@@ -44,81 +35,49 @@ export function ChatModal({ onClose }) {
 
   return (
     <Overlay>
-      <div style={{ ...card, width: "min(400px,100%)", display: "flex", flexDirection: "column", height: 500 }}>
-        <div
-          style={{
-            background: T.grad2,
-            padding: "14px 18px",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            borderRadius: "17px 17px 0 0",
-          }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] flex flex-col h-[500px] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#2E4CDB] to-[#233EC2] px-5 py-3.5 flex items-center gap-3">
           <Avatar initials="RK" gradient="orange" size={38} />
-          <div>
-            <div style={{ fontFamily: T.font, fontWeight: 700, color: "white", fontSize: 14 }}>
-              Rajesh Kumar
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <div style={{ width: 6, height: 6, borderRadius: 3, background: T.success }} />
-              <span style={{ fontFamily: T.font, color: "rgba(255,255,255,0.8)", fontSize: 11 }}>
+          <div className="flex-1">
+            <div className="font-bold text-white text-sm">Rajesh Kumar</div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              <span className="text-white/80 text-[11px] font-medium">
                 On the way · 8 min
               </span>
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{
-              marginLeft: "auto",
-              background: "rgba(0,0,0,0.2)",
-              border: "none",
-              borderRadius: 8,
-              width: 28,
-              height: 28,
-              color: "white",
-              cursor: "pointer",
-              fontSize: 16,
-            }}>
-            ✕
+            className="w-7 h-7 rounded-lg bg-black/20 hover:bg-black/30 flex items-center justify-center text-white transition-colors"
+            aria-label="Close chat"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div style={{ flex: 1, overflow: "auto", padding: "14px" }}>
+        {/* Chat Area */}
+        <div className="flex-1 overflow-y-auto p-4 bg-[#F7F6F2]">
           {msgs.map((m) => (
             <div
               key={m.id}
-              style={{
-                display: "flex",
-                justifyContent: m.from === "u" ? "flex-end" : "flex-start",
-                marginBottom: 10,
-              }}>
+              className={`flex mb-3 ${m.from === "u" ? "justify-end" : "justify-start"}`}
+            >
               <div
-                style={{
-                  maxWidth: "78%",
-                  background:
-                    m.from === "u" ? T.grad1 : "rgba(255,255,255,0.07)",
-                  borderRadius:
-                    m.from === "u"
-                      ? "16px 16px 3px 16px"
-                      : "16px 16px 16px 3px",
-                  padding: "9px 13px",
-                }}>
+                className={`max-w-[78%] px-3.5 py-2.5 ${
+                  m.from === "u"
+                    ? "bg-[#2E4CDB] text-white rounded-2xl rounded-br-sm shadow-sm"
+                    : "bg-white text-[#17181A] border border-black/5 rounded-2xl rounded-bl-sm shadow-sm"
+                }`}
+              >
+                <div className="text-[13px] leading-relaxed">{m.text}</div>
                 <div
-                  style={{
-                    fontFamily: T.font,
-                    color: m.from === "u" ? "white" : T.text,
-                    fontSize: 13,
-                  }}>
-                  {m.text}
-                </div>
-                <div
-                  style={{
-                    fontFamily: T.font,
-                    fontSize: 9,
-                    color: "rgba(255,255,255,0.4)",
-                    marginTop: 2,
-                    textAlign: m.from === "u" ? "right" : "left",
-                  }}>
+                  className={`text-[10px] mt-1 font-medium ${
+                    m.from === "u" ? "text-white/60 text-right" : "text-[#17181A]/40 text-left"
+                  }`}
+                >
                   {m.time}
                 </div>
               </div>
@@ -127,35 +86,25 @@ export function ChatModal({ onClose }) {
           <div ref={ref} />
         </div>
 
-        <div
-          style={{
-            padding: "10px 14px",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            display: "flex",
-            gap: 8,
-          }}>
+        {/* Input Area */}
+        <div className="p-3 bg-white border-t border-black/5 flex gap-2 items-center">
           <input
             value={inp2}
             onChange={(e) => setInp2(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder="Type a message..."
-            style={{ ...inp, flex: 1, marginBottom: 0 }}
+            className="flex-1 bg-[#F7F6F2] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-[#17181A] outline-none focus:border-[#2E4CDB] transition-colors"
           />
           <button
             onClick={send}
-            style={{
-              background: T.grad1,
-              border: "none",
-              borderRadius: 10,
-              padding: "0 18px",
-              color: "white",
-              fontWeight: 800,
-              cursor: "pointer",
-              fontSize: 16,
-            }}>
-            →
+            disabled={!inp2.trim()}
+            className="bg-[#2E4CDB] hover:bg-[#233EC2] disabled:opacity-50 disabled:cursor-not-allowed text-white w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
+            aria-label="Send message"
+          >
+            <Send className="w-4 h-4 -ml-0.5" />
           </button>
         </div>
+        
       </div>
     </Overlay>
   );
