@@ -1,137 +1,100 @@
+import React from "react";
 import { T } from "../constants/theme";
-import { card } from "../constants/styles";
 import { SERVICES, PROVIDERS, BOOKINGS, STATUSES } from "../constants/data";
 import { SvcIcon } from "../components/SvcIcon";
 import { Avatar } from "../components/Avatar";
 
 export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "36px 24px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
-        <div
-          style={{
-            width: 46,
-            height: 46,
-            borderRadius: 13,
-            background: T.grad2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 22,
-          }}>
-          ⚙️
+    <div className="max-w-[1100px] mx-auto py-9 px-6 font-sans">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-7">
+        <div className="w-[46px] h-[46px] rounded-xl flex items-center justify-center text-[22px] bg-gradient-to-br from-amber-400 to-amber-600 shadow-sm text-white">
+          ⚙
         </div>
         <div>
-          <div style={{ fontFamily: T.font, fontWeight: 900, fontSize: 20, color: T.text }}>
+          <div className="font-bold text-[20px] text-stone-900 tracking-tight">
             Admin Dashboard
           </div>
-          <div style={{ fontFamily: T.font, color: T.muted, fontSize: 13 }}>
+          <div className="text-[13px] text-stone-500">
             ServiHub Operations · Kathmandu
           </div> 
         </div>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
-          gap: 14,
-          marginBottom: 28,
-        }}>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5 mb-7">
         {[
-          ["12,483", T.grad1, "Total Users", "👥", "+8.2%"],
-          ["1,247", T.grad2, "Providers", "🛠️", "+3.1%"],
-          ["348", T.grad3, "Bookings Today", "📋", "+12.5%"],
-          ["4,82,900", T.grad4, "Revenue NPR", "💰", "+5.8%"],
-        ].map(([v, g, l, icon, chg]) => (
-          <div key={l} style={{ ...card, padding: 18, position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: -16, right: -16, fontSize: 50, opacity: 0.07 }}>
-              {icon}
-            </div>
-            <div style={{ fontFamily: T.font, color: T.muted, fontSize: 12, marginBottom: 8 }}>
+          ["12,483", "Total Users", "+8.2%"],
+          ["1,247", "Providers", "+3.1%"],
+          ["348", "Bookings Today", "+12.5%"],
+          ["4,82,900", "Revenue NPR", "+5.8%"],
+        ].map(([v, l, chg]) => (
+          <div key={l} className="bg-white border border-stone-200 rounded-2xl p-[18px] relative overflow-hidden shadow-sm">
+            <div className="text-[12px] mb-2 text-stone-500 font-medium">
               {l}
             </div>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontWeight: 900,
-                fontSize: 22,
-                background: g,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                marginBottom: 6,
-              }}>
+            <div className="font-black text-[22px] mb-1.5 text-stone-900 tracking-tight">
               {v}
             </div>
-            <div style={{ fontFamily: T.font, fontSize: 12, color: T.success, fontWeight: 700 }}>
+            <div className="text-[12px] font-bold text-emerald-600">
               {chg} this week
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+      {/* Tab Navigation */}
+      <div className="flex gap-2 mb-5">
         {[
-          ["overview", "📊 Overview"],
-          ["users", "👥 Users"],
-          ["providers", "🛠️ Providers"],
-          ["bookings", "📋 Bookings"],
-        ].map(([t, l]) => (
-          <button
-            key={t}
-            onClick={() => setAdminTab(t)}
-            style={{
-              background: adminTab === t ? T.grad1 : "rgba(255,255,255,0.06)",
-              border: `1px solid ${adminTab === t ? "transparent" : "rgba(255,255,255,0.1)"}`,
-              borderRadius: 10,
-              padding: "8px 18px",
-              color: adminTab === t ? "white" : T.muted,
-              fontWeight: adminTab === t ? 700 : 400,
-              cursor: "pointer",
-              fontSize: 13,
-              fontFamily: T.font,
-            }}>
-            {l}
-          </button>
-        ))}
+          ["overview", "Overview"],
+          ["users", "Users"],
+          ["providers", "Providers"],
+          ["bookings", "Bookings"],
+        ].map(([t, l]) => {
+          const isActive = adminTab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setAdminTab(t)}
+              className={`rounded-xl py-2 px-[18px] cursor-pointer text-[13px] transition-all border ${
+                isActive
+                  ? "bg-[#E8AE3F] border-[#E8AE3F] text-white font-bold shadow-sm"
+                  : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50 font-normal"
+              }`}
+            >
+              {l}
+            </button>
+          );
+        })}
       </div>
 
+      {/* Overview Tab Content */}
       {adminTab === "overview" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <div style={{ ...card, padding: 22 }}>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontWeight: 700,
-                color: T.text,
-                fontSize: 15,
-                marginBottom: 18,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}>
-              <span style={{ width: 3, height: 16, background: T.grad1, borderRadius: 2, display: "block" }} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Service Distribution */}
+          <div className="bg-white border border-stone-200 rounded-2xl p-[22px] shadow-sm">
+            <div className="font-bold text-[15px] mb-[18px] flex items-center gap-2 text-stone-900">
+              <span className="w-[3px] h-4 rounded-[2px] block bg-[#E8AE3F]" />
               Service Distribution
             </div>
             {SERVICES.map((sv) => (
-              <div key={sv.id} style={{ marginBottom: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div key={sv.id} className="mb-3">
+                <div className="flex justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
                     <SvcIcon type={sv.name} size={18} />
-                    <span style={{ fontFamily: T.font, fontSize: 12, color: T.text, fontWeight: 600 }}>
+                    <span className="text-[12px] font-semibold text-stone-800">
                       {sv.name}
                     </span>
                   </div>
-                  <span style={{ fontFamily: T.font, fontSize: 12, color: T.muted }}>
+                  <span className="text-[12px] text-stone-500 font-medium">
                     {sv.count}
                   </span>
                 </div>
-                <div style={{ height: 5, background: "rgba(255,255,255,0.06)", borderRadius: 3 }}>
+                <div className="h-[5px] bg-stone-100 rounded-full overflow-hidden">
                   <div
+                    className="h-full rounded-full bg-[#E8AE3F]"
                     style={{
-                      height: 5,
-                      borderRadius: 3,
-                      background: sv.grad,
                       width: `${(sv.count / 215) * 100}%`,
                     }}
                   />
@@ -140,31 +103,13 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
             ))}
           </div>
 
-          <div style={{ ...card, padding: 22 }}>
-            <div
-              style={{
-                fontFamily: T.font,
-                fontWeight: 700,
-                color: T.text,
-                fontSize: 15,
-                marginBottom: 18,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}>
-              <span style={{ width: 3, height: 16, background: T.grad5, borderRadius: 2, display: "block" }} />
+          {/* Pending Approvals */}
+          <div className="bg-white border border-stone-200 rounded-2xl p-[22px] shadow-sm">
+            <div className="font-bold text-[15px] mb-[18px] flex items-center gap-2 text-stone-900">
+              <span className="w-[3px] h-4 rounded-[2px] block bg-red-500" />
               Pending Approvals
               {pending.length > 0 && (
-                <span
-                  style={{
-                    background: "rgba(252,70,107,0.15)",
-                    color: T.danger,
-                    fontFamily: T.font,
-                    fontSize: 11,
-                    fontWeight: 800,
-                    borderRadius: 8,
-                    padding: "2px 9px",
-                  }}>
+                <span className="text-[11px] font-extrabold rounded-full py-0.5 px-2 bg-red-50 text-red-500">
                   {pending.length}
                 </span>
               )}
@@ -172,72 +117,33 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
             {pending.map((p) => (
               <div
                 key={p.id}
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: 12,
-                  padding: "13px 14px",
-                  marginBottom: 10,
-                }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 8,
-                  }}>
+                className="bg-stone-50 border border-stone-100 rounded-xl py-[13px] px-[14px] mb-2.5"
+              >
+                <div className="flex justify-between items-center flex-wrap gap-2">
                   <div>
-                    <div style={{ fontFamily: T.font, fontWeight: 700, color: T.text, fontSize: 13 }}>
+                    <div className="font-bold text-[13px] text-stone-900">
                       {p.name}
                     </div>
-                    <div style={{ fontFamily: T.font, color: T.muted, fontSize: 11 }}>
+                    <div className="text-[11px] text-stone-500">
                       {p.service} · Joined {p.joined}
                     </div>
                     {!p.docs && (
-                      <span
-                        style={{
-                          background: "rgba(255,210,63,0.12)",
-                          color: T.warning,
-                          fontFamily: T.font,
-                          fontSize: 10,
-                          fontWeight: 700,
-                          borderRadius: 6,
-                          padding: "2px 8px",
-                          marginTop: 4,
-                          display: "inline-block",
-                        }}>
-                        ⚠ Docs Missing
+                      <span className="text-[10px] font-bold rounded-md py-0.5 px-2 mt-1 inline-block bg-amber-50 text-amber-600 border border-amber-200/50">
+                        Docs Missing
                       </span>
                     )}
                   </div>
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div className="flex gap-1.5">
                     <button
                       onClick={() => setPending((prev) => prev.filter((x) => x.id !== p.id))}
-                      style={{
-                        background: "linear-gradient(135deg,#11998E,#38EF7D)",
-                        border: "none",
-                        borderRadius: 8,
-                        padding: "5px 12px",
-                        color: "#0A1A0A",
-                        fontSize: 12,
-                        cursor: "pointer",
-                        fontWeight: 800,
-                        fontFamily: T.font,
-                      }}>
+                      className="border-none rounded-lg py-1 px-3 text-[12px] cursor-pointer font-extrabold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition"
+                    >
                       ✓
                     </button>
                     <button
                       onClick={() => setPending((prev) => prev.filter((x) => x.id !== p.id))}
-                      style={{
-                        background: "rgba(252,70,107,0.12)",
-                        border: "1px solid rgba(252,70,107,0.25)",
-                        borderRadius: 8,
-                        padding: "5px 12px",
-                        color: T.danger,
-                        fontSize: 12,
-                        cursor: "pointer",
-                        fontFamily: T.font,
-                      }}>
+                      className="rounded-lg py-1 px-3 text-[12px] cursor-pointer bg-red-50 hover:bg-red-100 border border-red-200 text-red-500 font-semibold transition"
+                    >
                       ✕
                     </button>
                   </div>
@@ -245,38 +151,26 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
               </div>
             ))}
             {pending.length === 0 && (
-              <div
-                style={{
-                  fontFamily: T.font,
-                  color: T.muted,
-                  fontSize: 13,
-                  textAlign: "center",
-                  padding: "20px 0",
-                }}>
-                ✅ All providers reviewed
+              <div className="text-[13px] text-center py-5 text-stone-400 font-medium">
+                All providers reviewed
               </div>
             )}
           </div>
         </div>
       )}
 
+      {/* Providers Tab Content */}
       {adminTab === "providers" && (
-        <div style={{ ...card, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: T.font }}>
+        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
-                <tr style={{ background: "rgba(255,255,255,0.04)" }}>
+                <tr className="bg-stone-50 border-b border-stone-200">
                   {["Provider", "Service", "Rating", "Jobs", "Status", "Action"].map((h) => (
                     <th
                       key={h}
-                      style={{
-                        padding: "12px 16px",
-                        textAlign: "left",
-                        color: T.muted,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        borderBottom: "1px solid rgba(255,255,255,0.07)",
-                      }}>
+                      className="py-3 px-4 text-left text-[12px] font-semibold text-stone-500"
+                    >
                       {h}
                     </th>
                   ))}
@@ -284,61 +178,37 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
               </thead>
               <tbody>
                 {PROVIDERS.map((p) => (
-                  <tr
-                    key={p.id}
-                    style={{
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
-                    }}>
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <tr key={p.id} className="border-b border-stone-100 hover:bg-stone-50/50 transition">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2.5">
                         <Avatar initials={p.initials} gradient={p.grad} size={32} />
-                        <span
-                          style={{
-                            fontFamily: T.font,
-                            fontWeight: 600,
-                            color: T.text,
-                            fontSize: 13,
-                          }}>
+                        <span className="font-semibold text-[13px] text-stone-900">
                           {p.name}
                         </span>
                       </div>
                     </td>
-                    <td style={{ padding: "12px 16px", color: T.muted, fontSize: 12 }}>
+                    <td className="py-3 px-4 text-[12px] text-stone-600">
                       {p.service}
                     </td>
-                    <td style={{ padding: "12px 16px", color: T.warning, fontWeight: 700, fontSize: 13 }}>
-                      ⭐ {p.rating}
+                    <td className="py-3 px-4 font-bold text-[13px] text-amber-500">
+                      ★ {p.rating}
                     </td>
-                    <td style={{ padding: "12px 16px", color: T.text, fontSize: 13 }}>
+                    <td className="py-3 px-4 text-[13px] text-stone-800 font-medium">
                       {p.jobs}
                     </td>
-                    <td style={{ padding: "12px 16px" }}>
+                    <td className="py-3 px-4">
                       <span
-                        style={{
-                          background: p.verified
-                            ? "rgba(56,239,125,0.1)"
-                            : "rgba(255,210,63,0.1)",
-                          color: p.verified ? T.success : T.warning,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          borderRadius: 8,
-                          padding: "3px 10px",
-                        }}>
+                        className={`text-[11px] font-bold rounded-lg py-[3px] px-2.5 ${
+                          p.verified
+                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200/50"
+                            : "bg-amber-50 text-amber-600 border border-amber-200/50"
+                        }`}
+                      >
                         {p.verified ? "Verified" : "Pending"}
                       </span>
                     </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <button
-                        style={{
-                          background: "rgba(255,255,255,0.07)",
-                          border: "none",
-                          borderRadius: 7,
-                          padding: "4px 12px",
-                          color: T.text,
-                          fontSize: 11,
-                          cursor: "pointer",
-                          fontFamily: T.font,
-                        }}>
+                    <td className="py-3 px-4">
+                      <button className="bg-stone-100 hover:bg-stone-200 border border-stone-200 rounded-lg py-1 px-3 text-[11px] cursor-pointer text-stone-700 font-medium transition">
                         View
                       </button>
                     </td>
@@ -350,23 +220,18 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
         </div>
       )}
 
+      {/* Bookings Tab Content */}
       {adminTab === "bookings" && (
-        <div style={{ ...card, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: T.font }}>
+        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
-                <tr style={{ background: "rgba(255,255,255,0.04)" }}>
+                <tr className="bg-stone-50 border-b border-stone-200">
                   {["ID", "Service", "Provider", "Date", "Amount", "Status"].map((h) => (
                     <th
                       key={h}
-                      style={{
-                        padding: "12px 16px",
-                        textAlign: "left",
-                        color: T.muted,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        borderBottom: "1px solid rgba(255,255,255,0.07)",
-                      }}>
+                      className="py-3 px-4 text-left text-[12px] font-semibold text-stone-500"
+                    >
                       {h}
                     </th>
                   ))}
@@ -374,55 +239,32 @@ export function AdminDashboard({ adminTab, setAdminTab, pending, setPending }) {
               </thead>
               <tbody>
                 {BOOKINGS.map((b) => {
-                  const st = STATUSES[b.status];
+                  const st = STATUSES[b.status] || { bg: "bg-stone-100", color: "text-stone-600", label: b.status };
                   return (
-                    <tr
-                      key={b.id}
-                      style={{
-                        borderBottom: "1px solid rgba(255,255,255,0.05)",
-                      }}>
-                      <td
-                        style={{
-                          padding: "12px 16px",
-                          color: T.orange,
-                          fontWeight: 700,
-                          fontSize: 12,
-                          fontFamily: T.font,
-                        }}>
+                    <tr key={b.id} className="border-b border-stone-100 hover:bg-stone-50/50 transition">
+                      <td className="py-3 px-4 font-bold text-[12px] text-[#E8AE3F]">
                         {b.id}
                       </td>
-                      <td style={{ padding: "12px 16px", color: T.text, fontSize: 13, fontFamily: T.font }}>
+                      <td className="py-3 px-4 text-[13px] text-stone-900 font-medium">
                         {b.service}
                       </td>
-                      <td style={{ padding: "12px 16px", color: T.muted, fontSize: 12, fontFamily: T.font }}>
+                      <td className="py-3 px-4 text-[12px] text-stone-500">
                         {b.provider}
                       </td>
-                      <td style={{ padding: "12px 16px", color: T.muted, fontSize: 12, fontFamily: T.font }}>
+                      <td className="py-3 px-4 text-[12px] text-stone-500">
                         {b.date}
                       </td>
-                      <td
-                        style={{
-                          padding: "12px 16px",
-                          fontFamily: T.font,
-                          fontWeight: 900,
-                          background: T.grad1,
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          fontSize: 13,
-                        }}>
+                      <td className="py-3 px-4 font-bold text-[13px] text-stone-900">
                         NPR {b.amount}
                       </td>
-                      <td style={{ padding: "12px 16px" }}>
+                      <td className="py-3 px-4">
                         <span
+                          className="text-[11px] font-bold rounded-lg py-[3px] px-2.5 inline-block"
                           style={{
-                            background: st.bg,
+                            backgroundColor: st.bg,
                             color: st.color,
-                            fontFamily: T.font,
-                            fontSize: 11,
-                            fontWeight: 700,
-                            borderRadius: 8,
-                            padding: "3px 10px",
-                          }}>
+                          }}
+                        >
                           {st.label}
                         </span>
                       </td>
