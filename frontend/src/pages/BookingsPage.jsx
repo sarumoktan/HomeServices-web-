@@ -1,154 +1,95 @@
-import { T } from "../constants/theme";
-import { card, btnP } from "../constants/styles";
+import React from "react";
 import { BOOKINGS, SERVICES, STATUSES } from "../constants/data";
 
 export function BookingsPage({ setShowChat, setShowMap, setReview, setBooking, PROVIDERS }) {
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "36px 24px" }}>
-      <h2
-        style={{
-          fontFamily: T.font,
-          fontWeight: 800,
-          fontSize: 24,
-          color: T.text,
-          marginBottom: 24,
-        }}>
+    <div className="max-w-[900px] mx-auto py-9 px-6 font-sans text-stone-900">
+      <h2 className="font-extrabold text-[24px] mb-6 text-stone-900">
         My Bookings
       </h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="flex flex-col gap-3.5">
         {BOOKINGS.map((b) => {
           const st = STATUSES[b.status];
           const svc = SERVICES.find((s) => s.name === b.service);
+          
           return (
             <div
               key={b.id}
-              style={{ ...card, padding: 0, overflow: "hidden", transition: "border-color .2s" }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,107,53,0.25)")}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = T.border)}>
-              <div style={{ height: 3, background: svc?.grad || T.grad1 }} />
-              <div style={{ padding: "16px 20px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+              className="bg-white border border-stone-200 rounded-2xl p-0 overflow-hidden group hover:border-[#E8AE3F]/40 shadow-sm transition duration-200">
+              
+              {/* Top accent line */}
+              <div 
+                className="h-[3px] w-full" 
+                style={{ background: svc?.grad || "linear-gradient(135deg, #E8AE3F 0%, #D97706 100%)" }} 
+              />
+              
+              <div className="py-4 px-5">
+                <div className="flex justify-between flex-wrap gap-3">
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                      <span style={{ fontFamily: T.font, fontWeight: 800, color: T.text, fontSize: 16 }}>
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <span className="font-extrabold text-[16px] text-stone-900">
                         {b.service}
                       </span>
                       <span
+                        className="text-[11px] font-bold rounded-lg py-[3px] px-[11px] flex items-center gap-[5px]"
                         style={{
-                          background: st.bg,
+                          backgroundColor: st.bg,
                           color: st.color,
-                          fontFamily: T.font,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          borderRadius: 8,
-                          padding: "3px 11px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 5,
                         }}>
                         <span
+                          className="w-[5px] h-[5px] rounded-full block"
                           style={{
-                            width: 5,
-                            height: 5,
-                            borderRadius: 3,
-                            background: st.dot,
-                            display: "block",
+                            backgroundColor: st.dot,
                             boxShadow: `0 0 5px ${st.dot}`,
                           }}
                         />
                         {st.label}
                       </span>
                     </div>
-                    <div style={{ fontFamily: T.font, color: T.muted, fontSize: 13, marginBottom: 4 }}>
-                      Provider: <span style={{ color: T.text, fontWeight: 600 }}>{b.provider}</span>
+                    <div className="text-[13px] mb-1 text-stone-500">
+                      Provider: <span className="font-semibold text-stone-900">{b.provider}</span>
                     </div>
-                    <div style={{ fontFamily: T.font, color: T.dim, fontSize: 12 }}>
-                      📅 {b.date} · {b.time} · 📍 {b.address}
+                    <div className="text-[12px] text-stone-400">
+                      {b.date} · {b.time} · {b.address}
                     </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div
-                      style={{
-                        fontFamily: T.font,
-                        fontWeight: 900,
-                        fontSize: 19,
-                        background: T.grad1,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                      }}>
+                  
+                  <div className="text-right">
+                    <div className="font-black text-[19px] bg-clip-text text-transparent bg-gradient-to-r from-[#E8AE3F] to-[#D97706]">
                       NPR {b.amount}
                     </div>
-                    <div style={{ fontFamily: T.font, color: T.dim, fontSize: 11, marginTop: 2 }}>
+                    <div className="text-[11px] mt-0.5 text-stone-400">
                       {b.id}
                     </div>
                   </div>
                 </div>
 
                 {b.status === "completed" && (
-                  <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div className="mt-3.5 flex gap-2 flex-wrap">
                     <button
                       onClick={() => setReview(b.provider)}
-                      style={{
-                        background: "rgba(255,210,63,0.1)",
-                        border: "1px solid rgba(255,210,63,0.25)",
-                        borderRadius: 10,
-                        padding: "7px 16px",
-                        color: T.warning,
-                        fontSize: 12,
-                        cursor: "pointer",
-                        fontFamily: T.font,
-                        fontWeight: 700,
-                      }}>
-                      ⭐ Rate & Review
+                      className="rounded-[10px] py-[7px] px-4 text-[12px] cursor-pointer font-bold transition-opacity hover:opacity-90 bg-amber-500/10 border border-amber-500/25 text-amber-600">
+                      Rate & Review
                     </button>
                     <button
                       onClick={() => setBooking(PROVIDERS.find((p) => p.name === b.provider) || PROVIDERS[0])}
-                      style={{
-                        background: "rgba(255,107,53,0.1)",
-                        border: "1px solid rgba(255,107,53,0.25)",
-                        borderRadius: 10,
-                        padding: "7px 16px",
-                        color: T.orange,
-                        fontSize: 12,
-                        cursor: "pointer",
-                        fontFamily: T.font,
-                        fontWeight: 700,
-                      }}>
-                      🔄 Book Again
+                      className="rounded-[10px] py-[7px] px-4 text-[12px] cursor-pointer font-bold transition-opacity hover:opacity-90 bg-orange-500/10 border border-orange-500/25 text-orange-600">
+                      Book Again
                     </button>
                   </div>
                 )}
+
                 {b.status === "confirmed" && (
-                  <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div className="mt-3.5 flex gap-2 flex-wrap">
                     <button
                       onClick={() => setShowChat(true)}
-                      style={{
-                        background: "rgba(79,172,254,0.1)",
-                        border: "1px solid rgba(79,172,254,0.25)",
-                        borderRadius: 10,
-                        padding: "7px 16px",
-                        color: T.blue,
-                        fontSize: 12,
-                        cursor: "pointer",
-                        fontFamily: T.font,
-                        fontWeight: 700,
-                      }}>
-                      💬 Chat with Provider
+                      className="rounded-[10px] py-[7px] px-4 text-[12px] cursor-pointer font-bold transition-opacity hover:opacity-90 bg-sky-500/10 border border-sky-500/25 text-sky-600">
+                      Chat with Provider
                     </button>
                     <button
                       onClick={() => setShowMap(true)}
-                      style={{
-                        background: "rgba(56,239,125,0.1)",
-                        border: "1px solid rgba(56,239,125,0.25)",
-                        borderRadius: 10,
-                        padding: "7px 16px",
-                        color: T.success,
-                        fontSize: 12,
-                        cursor: "pointer",
-                        fontFamily: T.font,
-                        fontWeight: 700,
-                      }}>
-                      📍 Track Live
+                      className="rounded-[10px] py-[7px] px-4 text-[12px] cursor-pointer font-bold transition-opacity hover:opacity-90 bg-emerald-500/10 border border-emerald-500/25 text-emerald-600">
+                      Track Live
                     </button>
                   </div>
                 )}
