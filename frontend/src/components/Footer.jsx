@@ -1,59 +1,55 @@
-import { T } from "../constants/theme";
+import React from "react";
 
-export function Footer() {
+export function Footer({ onNavigate }) {
   return (
-    <footer
-      style={{
-        background: "rgba(248, 249, 250, 0.95)", // Changed to off-white to match the navbar
-        borderTop: "1px solid rgba(0, 0, 0, 0.08)", // Adjusted border for light background
-        padding: "34px 24px",
-        marginTop: 24,
-      }}>
-      <div
-        style={{
-          maxWidth: 1120,
-          margin: "0 auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 16,
-        }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 10,
-              background: T.grad1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 16,
-            }}>
-            🏠
+    <footer className="bg-[#F4F3EE] border-t border-black/5 text-[#17181A] py-12 px-6 mt-16">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="space-y-4">
+          <div className="flex items-center text-[22px] tracking-tight font-bold select-none">
+            <span className="text-[#E8AE3F]">Home</span>
+            <span className="text-[#17181A]">Service</span>
           </div>
-          <span
-            style={{
-              fontFamily: T.font,
-              fontWeight: 900,
-              fontSize: 15,
-              background: T.grad1,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}>
-            ServiHub
-          </span>
+          <p className="text-xs text-[#17181A]/70 leading-relaxed">
+            Your trusted partner for home maintenance, repair, and cleaning services across Kathmandu.
+          </p>
         </div>
-        <div style={{ fontFamily: T.font, color: "#718096", fontSize: 12, textAlign: "center", flex: 1, minWidth: 220 }}>
-          © 2026 ServiHub • Kathmandu, Nepal • Reliable home services at your doorstep
+
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#17181A]/80 mb-3">Quick Links</h4>
+          <ul className="space-y-2 text-xs text-[#17181A]/70">
+            <li><button onClick={() => onNavigate("home")} className="hover:text-[#2E4CDB] bg-transparent border-none cursor-pointer">Home</button></li>
+            <li><button onClick={() => onNavigate("services")} className="hover:text-[#2E4CDB] bg-transparent border-none cursor-pointer">Explore Services</button></li>
+            <li><button onClick={() => onNavigate("auth")} className="hover:text-[#2E4CDB] bg-transparent border-none cursor-pointer">Become a Provider</button></li>
+          </ul>
         </div>
-        <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
-          {["Privacy", "Terms", "Support", "Blog"].map((l) => (
-            <span key={l} style={{ fontFamily: T.font, color: "#4A5568", fontSize: 12, cursor: "pointer" }}>
-              {l}
-            </span>
-          ))}
+
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#17181A]/80 mb-3">Categories</h4>
+          <ul className="space-y-2 text-xs text-[#17181A]/70">
+            <li>Plumbing & Electrical</li>
+            <li>Deep House Cleaning</li>
+            <li>Appliance Repair</li>
+            <li>Carpentry & Painting</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#17181A]/80 mb-3">Contact</h4>
+          <p className="text-xs text-[#17181A]/70 leading-relaxed mb-2">
+            Kathmandu, Nepal<br />
+            support@homeservice.com.np
+          </p>
+          <p className="text-xs font-bold text-[#2E4CDB]">
+            +977 1-4000000
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between text-xs text-[#17181A]/50">
+        <p>&copy; {new Date().getFullYear()} HomeService Nepal. All rights reserved.</p>
+        <div className="flex gap-4 mt-2 sm:mt-0">
+          <span className="hover:underline cursor-pointer">Privacy Policy</span>
+          <span className="hover:underline cursor-pointer">Terms of Service</span>
         </div>
       </div>
     </footer>
