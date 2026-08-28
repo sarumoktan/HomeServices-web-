@@ -1,47 +1,36 @@
-// Service Service
 const Service = require('./service.model');
 
-exports.getAllServices = async () => {
-  try {
-    // Fetch all services from database
-    return [];
-  } catch (error) {
-    throw new Error(error.message);
+class ServiceService {
+  // Fetch all services or filter by category
+  async getAll(category) {
+    const condition = category ? { where: { category } } : {};
+    return await Service.findAll(condition);
   }
-};
 
-exports.getServiceById = async (id) => {
-  try {
-    // Fetch service by ID
-    return {};
-  } catch (error) {
-    throw new Error(error.message);
+  // Find a single service by its primary key ID
+  async getById(id) {
+    return await Service.findByPk(id);
   }
-};
 
-exports.createService = async (serviceData) => {
-  try {
-    // Create new service
-    return serviceData;
-  } catch (error) {
-    throw new Error(error.message);
+  // Create a new service record in the database
+  async create(data) {
+    return await Service.create(data);
   }
-};
 
-exports.updateService = async (id, serviceData) => {
-  try {
-    // Update service
-    return serviceData;
-  } catch (error) {
-    throw new Error(error.message);
+  // Update an existing service record by ID
+  async update(id, data) {
+    const service = await Service.findByPk(id);
+    if (!service) return null;
+    return await service.update(data);
   }
-};
 
-exports.deleteService = async (id) => {
-  try {
-    // Delete service
-    return { message: 'Service deleted' };
-  } catch (error) {
-    throw new Error(error.message);
+  // Delete a service record by ID
+  async remove(id) {
+    const service = await Service.findByPk(id);
+    if (!service) return null;
+    await service.destroy();
+    return true;
   }
-};
+}
+
+module.exports = new ServiceService();
