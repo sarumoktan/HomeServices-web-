@@ -1,47 +1,24 @@
-// Service Controller
-const serviceService = require('./service.service');
+const Service = require('./service.model');
 
-exports.getAllServices = async (req, res) => {
+// Fetch all services or filter by category using Sequelize methods
+exports.getServices = async (req, res) => {
   try {
-    const services = await serviceService.getAllServices();
-    res.status(200).json(services);
+    const { category } = req.query;
+    let condition = category ? { where: { category } } : {};
+
+    const services = await Service.findAll(condition);
+    res.status(200).json({ success: true, data: services });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-exports.getServiceById = async (req, res) => {
-  try {
-    const service = await serviceService.getServiceById(req.params.id);
-    res.status(200).json(service);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
+// Create a new service record using Sequelize
 exports.createService = async (req, res) => {
   try {
-    const service = await serviceService.createService(req.body);
-    res.status(201).json(service);
+    const newService = await Service.create(req.body);
+    res.status(201).json({ success: true, data: newService });
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.updateService = async (req, res) => {
-  try {
-    const updatedService = await serviceService.updateService(req.params.id, req.body);
-    res.status(200).json(updatedService);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.deleteService = async (req, res) => {
-  try {
-    await serviceService.deleteService(req.params.id);
-    res.status(200).json({ message: 'Service deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
