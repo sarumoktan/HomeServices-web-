@@ -1,42 +1,47 @@
-// Service Model
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+// Import the database connection instance
+const sequelize = require('../../config/database');
 
-const serviceSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
+// Define the Service model mapped to the 'services' table in PostgreSQL
+const Service = sequelize.define('Service', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
   },
-  description: {
-    type: String,
-    required: true
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
   },
   category: {
-    type: String,
-    required: true
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
+  provider: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
   },
   price: {
-    type: Number,
-    required: true
+    type: DataTypes.STRING(50),
+    allowNull: false,
+  },
+  rating: {
+    type: DataTypes.STRING(50),
+    defaultValue: '0.0 (0)',
+  },
+  desc: {
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
   image: {
-    type: String
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
-  duration: {
-    type: Number, // in minutes
-    default: 60
-  },
-  active: {
-    type: Boolean,
-    default: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+}, {
+  tableName: 'services',
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false, // Disable updatedAt column since it's not in the SQL definition
 });
 
-module.exports = mongoose.model('Service', serviceSchema);
+module.exports = Service;
