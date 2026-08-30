@@ -45,11 +45,13 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           firstName: firstName.trim() || (useEmail ? identifier.split("@")[0] : "Valued"),
-          lastName: lastName.trim() || "Customer",
+          lastName: lastName.trim() || (userType === "provider" ? "Provider" : "Customer"),
           email: currentEmail,
           phone: currentPhone,
           password: password,
           role: userType === "provider" ? "provider" : "user",
+          serviceType: userType === "provider" ? "General Home Service" : undefined,
+          hourlyRate: userType === "provider" ? 500 : undefined,
         }),
       });
       
