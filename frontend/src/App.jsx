@@ -39,16 +39,17 @@ export default function App() {
   };
 
   const handleLogin = (type, data) => {
-    if (data && data.token) {
-      try {
-        localStorage.setItem('token', data.token);
-      } catch (e) {}
-    }
-    if (data && data.user) setCurrentUser(data.user);
+    const token = data?.token || "mock-token";
+    const userObj = data?.user || data;
+
+    try {
+      localStorage.setItem('token', token);
+    } catch (e) {}
+
+    if (userObj) setCurrentUser(userObj);
     setLoggedIn(true);
     setUserType(type);
     
-    // Send normal users to "home" instead of "profile" after login
     const target = type === "admin" ? "admin" : type === "provider" ? "provider-dash" : "home";
     go(target);
   };
@@ -67,17 +68,15 @@ export default function App() {
         onLogout={handleLogout}
         onNavigate={go}
         userType={userType}
+        setUserType={setUserType}
         currentUser={currentUser}
       />
       
-
-      {/* MODALS */}
       {showMap && <MapModal onClose={() => setShowMap(false)} />}
       {booking && <BookingModal provider={booking} onClose={() => setBooking(null)} />}
       {showChat && <ChatModal onClose={() => setShowChat(false)} />}
       {review && <ReviewModal provider={review} onClose={() => setReview(null)} />}
 
-      {/* PAGES */}
       {page === "home" && (
         <HomePage
           onNavigate={go}
@@ -122,7 +121,6 @@ export default function App() {
         />
       )}
 
-      {/* CHANGED HERE: Added onNavigate={go} so ProfilePage can switch back to home */}
       {page === "profile" && <ProfilePage user={currentUser} onNavigate={go} />} 
 
       {page === "provider-dash" && (
