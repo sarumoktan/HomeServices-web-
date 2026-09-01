@@ -52,7 +52,6 @@ const registerUser = async (userData) => {
       await sendOtpEmail(newUser, otp);
     } catch (emailErr) {
       console.error('Failed to dispatch OTP email during registration:', emailErr.message);
-      // Registration will continue successfully; user can use "Resend OTP" if needed.
     }
 
     // Return user data without password
@@ -85,12 +84,14 @@ const verifyOtp = async (email, otp) => {
     return { alreadyVerified: true };
   }
 
-  if (!user.otpCode || user.otpCode !== otp) {
-    throw new AppError('Invalid verification code.', 400, 'INVALID_OTP');
-  }
-
+  // 1. Check expiration FIRST before evaluating equality
   if (user.otpExpiresAt && new Date() > new Date(user.otpExpiresAt)) {
     throw new AppError('Verification code has expired. Please request a new one.', 400, 'OTP_EXPIRED');
+  }
+
+  // 2. Check code match SECOND with safe string trimming and casting
+  if (!user.otpCode || user.otpCode !== otp.toString().trim()) {
+    throw new AppError('Invalid verification code.', 400, 'INVALID_OTP');
   }
 
   // Mark user as verified and clear OTP fields
