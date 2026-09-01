@@ -1,13 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-// Added Calendar, User, and LogOut icons for the dropdown menu
 import { MapPin, ChevronDown, UserRound, Calendar, User, LogOut } from "lucide-react";
 
-export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, currentUser }) {
-  // Added state to control the dropdown visibility
+export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, setUserType, currentUser }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Added click outside listener to close the dropdown menu automatically
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -20,9 +17,9 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, current
 
   const handleProfileClick = () => {
     if (!loggedIn) {
+      if (setUserType) setUserType("user"); 
       onNavigate("auth");
     } else {
-      // CHANGED HERE: Toggles dropdown for normal users instead of immediate redirect
       if (userType === "user") {
         setShowDropdown((prev) => !prev);
       } else {
@@ -34,20 +31,23 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, current
 
   return (
     <header className="h-[48px] bg-[#F7F6F2] border-b border-black/5 flex items-center justify-between px-[41px] sticky top-0 z-50">
-      {/* Left: Logo */}
       <div 
-        onClick={() => onNavigate("home")} 
+        onClick={() => {
+          if (setUserType) setUserType("user"); 
+          onNavigate("home");
+        }} 
         className="cursor-pointer flex items-center text-[25px] tracking-tight font-bold select-none"
       >
         <span className="text-[#E8AE3F]">Home</span>
         <span className="text-[#17181A]">Service</span>
       </div>
 
-      {/* Right: Provider link, Location selector, Profile button */}
-      {/* CHANGED HERE: Added ref={dropdownRef} to handle clicking outside */}
       <div className="flex items-center gap-6 relative" ref={dropdownRef}>
         <button
-          onClick={() => onNavigate("auth")}
+          onClick={() => {
+            if (setUserType) setUserType("provider");
+            onNavigate("auth");
+          }}
           className="text-[12px] font-normal text-[#17181A] hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer"
         >
           Become a Provider
@@ -61,7 +61,6 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, current
           <ChevronDown className="w-3.5 h-3.5 text-[#17181A]/60 shrink-0" />
         </div>
 
-        {/* Profile Icon & Dropdown Container */}
         <div className="relative">
           <button
             onClick={handleProfileClick}
@@ -71,7 +70,6 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, current
             <UserRound className="w-[18px] h-[18px]" />
           </button>
 
-          {/* CHANGED HERE: Added dropdown markup showing Hello name, My Bookings, My Profile, and Logout */}
           {loggedIn && showDropdown && userType === "user" && (
             <div className="absolute right-0 mt-2 w-52 bg-white border border-black/10 rounded-xl shadow-lg py-2 z-50 text-stone-800">
               <div className="px-4 py-2 border-b border-gray-100 text-sm font-medium text-gray-500">
