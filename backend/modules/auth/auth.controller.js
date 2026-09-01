@@ -1,11 +1,4 @@
-const {
-  AppError,
-  registerUser,
-  verifyOtp,
-  resendOtp,
-  loginUser,
-} = require('./auth.service');
-
+const {AppError,registerUser,verifyOtp,resendOtp,loginUser,} = require('./auth.service');
 const handleError = (res, err, context) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
