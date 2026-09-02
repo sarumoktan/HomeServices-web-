@@ -1,40 +1,42 @@
-// Provider Model
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../../config/database');
 
-const providerSchema = new mongoose.Schema({
+const Provider = sequelize.define('Provider', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
   name: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false,
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true
+  service: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
-  phone: {
-    type: String,
-    required: true
-  },
-  services: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Service'
-  }],
   rating: {
-    type: Number,
-    default: 0
+    type: DataTypes.FLOAT,
+    defaultValue: 4.9,
   },
-  verified: {
-    type: Boolean,
-    default: false
+  reviewsCount: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  location: {
+    type: DataTypes.STRING,
+    defaultValue: 'Kathmandu',
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  pricePerHour: {
+    type: DataTypes.FLOAT,
+    defaultValue: 350,
+  },
+  description: {
+    type: DataTypes.STRING,
+  },
+}, {
+  tableName: 'providers',
+  timestamps: true,
 });
 
-module.exports = mongoose.model('Provider', providerSchema);
+module.exports = Provider;
