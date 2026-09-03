@@ -46,7 +46,7 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, setUser
         <button
           onClick={() => {
             if (setUserType) setUserType("provider");
-            onNavigate("auth");
+            onNavigate("become-provider");
           }}
           className="text-[12px] font-normal text-[#17181A] hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer"
         >
