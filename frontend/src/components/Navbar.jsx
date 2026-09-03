@@ -43,16 +43,6 @@ export function Navbar({ page, loggedIn, onLogout, onNavigate, userType, setUser
       </div>
 
       <div className="flex items-center gap-6 relative" ref={dropdownRef}>
-        <button
-          onClick={() => {
-            if (setUserType) setUserType("provider");
-            onNavigate("become-provider");
-          }}
-          className="text-[12px] font-normal text-[#17181A] hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer"
-        >
-          Become a Provider
-        </button>
-
         <div className="w-[181px] h-[31px] bg-white border border-black/10 rounded-[6px] shadow-xs flex items-center justify-between px-2.5 text-[13px] text-[#17181A] cursor-pointer">
           <div className="flex items-center gap-1.5 truncate">
             <MapPin className="w-3.5 h-3.5 text-[#17181A]/60 shrink-0" />
