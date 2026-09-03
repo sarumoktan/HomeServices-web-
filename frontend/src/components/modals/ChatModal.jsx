@@ -1,111 +1,83 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Overlay } from "../Overlay";
-import { Avatar } from "../Avatar";
-import { X, Send } from "lucide-react"; // Make sure to import icons
+// frontend/src/components/modals/ChatModal.jsx
+import React, { useState, useEffect } from "react";
+import { X, Send } from "lucide-react";
 
-export function ChatModal({ onClose }) {
-  const [msgs, setMsgs] = useState([
-    { id: 1, from: "p", text: "Hello! I'll be at your location by 10:15 AM.", time: "9:45 AM" },
-    { id: 2, from: "u", text: "Great! Please bring the pipe fittings too.", time: "9:47 AM" },
-    { id: 3, from: "p", text: "Sure, I have everything. See you soon! 👍", time: "9:48 AM" },
-  ]);
-  const [inp2, setInp2] = useState("");
-  const ref = useRef(null);
+export function ChatModal({ jobId, receiverId, isOpen, onClose }) {
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
 
   useEffect(() => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
-  }, [msgs]);
+    if (!isOpen || !jobId) return;
+    const fetchMessages = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:5000/api/chat/${jobId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) setMessages(data.data);
+      } catch (err) {
+        console.error("Failed to load messages", err);
+      }
+    };
+    fetchMessages();
+  }, [isOpen, jobId]);
 
-  const send = () => {
-    if (!inp2.trim()) return;
-    setMsgs([
-      ...msgs,
-      {
-        id: msgs.length + 1,
-        from: "u",
-        text: inp2,
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
-    setInp2("");
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ jobId, receiver: receiverId, message: newMessage })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessages([...messages, data.data]);
+        setNewMessage("");
+      }
+    } catch (err) {
+      console.error("Failed to send message", err);
+    }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Overlay>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] flex flex-col h-[500px] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#2E4CDB] to-[#233EC2] px-5 py-3.5 flex items-center gap-3">
-          <Avatar initials="RK" gradient="orange" size={38} />
-          <div className="flex-1">
-            <div className="font-bold text-white text-sm">Rajesh Kumar</div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              <span className="text-white/80 text-[11px] font-medium">
-                On the way · 8 min
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-lg bg-black/20 hover:bg-black/30 flex items-center justify-center text-white transition-colors"
-            aria-label="Close chat"
-          >
-            <X className="w-4 h-4" />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-lg flex flex-col h-[500px] overflow-hidden">
+        <div className="p-4 border-b flex justify-between items-center bg-[#F7F6F2]">
+          <h3 className="font-bold text-[#17181A]">Job Chat</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-black">
+            <X className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 bg-[#F7F6F2]">
-          {msgs.map((m) => (
-            <div
-              key={m.id}
-              className={`flex mb-3 ${m.from === "u" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[78%] px-3.5 py-2.5 ${
-                  m.from === "u"
-                    ? "bg-[#2E4CDB] text-white rounded-2xl rounded-br-sm shadow-sm"
-                    : "bg-white text-[#17181A] border border-black/5 rounded-2xl rounded-bl-sm shadow-sm"
-                }`}
-              >
-                <div className="text-[13px] leading-relaxed">{m.text}</div>
-                <div
-                  className={`text-[10px] mt-1 font-medium ${
-                    m.from === "u" ? "text-white/60 text-right" : "text-[#17181A]/40 text-left"
-                  }`}
-                >
-                  {m.time}
-                </div>
-              </div>
+        <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50">
+          {messages.map((msg, index) => (
+            <div key={index} className="p-2 bg-white rounded-lg shadow-sm max-w-[75%]">
+              <p className="text-sm text-[#17181A]">{msg.message}</p>
+              <span className="text-[10px] text-gray-400">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           ))}
-          <div ref={ref} />
         </div>
-
-        {/* Input Area */}
-        <div className="p-3 bg-white border-t border-black/5 flex gap-2 items-center">
-          <input
-            value={inp2}
-            onChange={(e) => setInp2(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder="Type a message..."
-            className="flex-1 bg-[#F7F6F2] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-[#17181A] outline-none focus:border-[#2E4CDB] transition-colors"
+        <form onSubmit={handleSend} className="p-3 border-t bg-white flex gap-2">
+          <input 
+            type="text" 
+            value={newMessage} 
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..." 
+            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2E4CDB]"
           />
-          <button
-            onClick={send}
-            disabled={!inp2.trim()}
-            className="bg-[#2E4CDB] hover:bg-[#233EC2] disabled:opacity-50 disabled:cursor-not-allowed text-white w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
-            aria-label="Send message"
-          >
-            <Send className="w-4 h-4 -ml-0.5" />
+          <button type="submit" className="bg-[#2E4CDB] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#233EC2]">
+            <Send className="w-4 h-4" />
           </button>
-        </div>
-        
+        </form>
       </div>
-    </Overlay>
+    </div>
   );
 }
