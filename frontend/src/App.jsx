@@ -10,16 +10,27 @@ import { HomePage } from "./pages/HomePage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { AuthPage } from "./pages/AuthPage";
 import { BookingsPage } from "./pages/BookingsPage";
-import ProfilePage from "./pages/ProfilePage";
 import { ProviderDashboard } from "./pages/ProviderDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { BecomeProvider } from './pages/BecomeProviderPage';
+import { ProfilePage } from "./pages/ProfilePage";
 
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(() => {
+    return localStorage.getItem("loggedIn") === "true";
+  });
+  
+  const [userType, setUserType] = useState(() => {
+    return localStorage.getItem("userType") || "user";
+  });
+  
+  const [currentUser, setCurrentUser] = useState(() => {
+    const savedUser = localStorage.getItem("currentUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const [page, setPage] = useState("home");
   const [authTab, setAuthTab] = useState("login");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userType, setUserType] = useState("user");
-  const [currentUser, setCurrentUser] = useState(null);
   const [showMap, setShowMap] = useState(false);
   const [booking, setBooking] = useState(null);
   const [showChat, setShowChat] = useState(false);
@@ -43,7 +54,12 @@ export default function App() {
     const userObj = data?.user || data;
 
     try {
-      localStorage.setItem('token', token);
+      localStorage.setItem("token", token);
+      localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("userType", type);
+      if (userObj) {
+        localStorage.setItem("currentUser", JSON.stringify(userObj));
+      }
     } catch (e) {}
 
     if (userObj) setCurrentUser(userObj);
@@ -55,8 +71,14 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("currentUser");
+
     setLoggedIn(false);
     setUserType("user");
+    setCurrentUser(null);
     go("home");
   };
 
@@ -86,6 +108,8 @@ export default function App() {
           loggedIn={loggedIn}
         />
       )}
+
+      {page === "become-provider" && <BecomeProvider />}
 
       {page === "services" && (
         <ServicesPage
