@@ -1,20 +1,18 @@
-// Provider Validator
-exports.validateCreate = (req, res, next) => {
-  const { name, email, phone, services } = req.body;
+const validateJobStatusUpdate = (req, res, next) => {
+  const { status } = req.body;
   
-  if (!name || !email || !phone) {
-    return res.status(400).json({ message: 'Name, email, and phone are required' });
+  // List of allowed job statuses
+  const allowedStatuses = ['pending', 'confirmed', 'in-progress', 'completed', 'cancelled'];
+
+  if (!status || !allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid status provided. Allowed values are: ${allowedStatuses.join(', ')}`
+    });
   }
-  
   next();
 };
 
-exports.validateUpdate = (req, res, next) => {
-  const { email } = req.body;
-  
-  if (email && !email.includes('@')) {
-    return res.status(400).json({ message: 'Invalid email format' });
-  }
-  
-  next();
+module.exports = {
+  validateJobStatusUpdate,
 };
