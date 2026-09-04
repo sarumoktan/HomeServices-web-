@@ -1,47 +1,35 @@
-// Provider Service
-const Provider = require('./provider.model');
+const providerModel = require('./provider.model');
 
-exports.getAllProviders = async () => {
-  try {
-    // Fetch all providers from database
-    return [];
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+async function getAllProviders() {
+  return await providerModel.findAllProviders();
+}
 
-exports.getProviderById = async (id) => {
-  try {
-    // Fetch provider by ID
-    return {};
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+async function createProvider(providerData) {
+  const { name, category, hourlyRate, distance, bio, imageUrl } = providerData;
+  const formattedData = {
+    name,
+    category,
+    hourlyRate,
+    distance: distance || '1.0 km',
+    bio,
+    imageUrl: imageUrl || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=400',
+    rating: 5.0,
+    isVerified: true
+  };
+  return await providerModel.insertProvider(formattedData);
+}
 
-exports.createProvider = async (providerData) => {
-  try {
-    // Create new provider
-    return providerData;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+async function getDashboardData() {
+  return await providerModel.fetchDashboardStats();
+}
 
-exports.updateProvider = async (id, providerData) => {
-  try {
-    // Update provider
-    return providerData;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+async function updateJobStatus(jobId, status) {
+  return await providerModel.updateJobStatusInDb(jobId, status);
+}
 
-exports.deleteProvider = async (id) => {
-  try {
-    // Delete provider
-    return { message: 'Provider deleted' };
-  } catch (error) {
-    throw new Error(error.message);
-  }
+module.exports = {
+  getAllProviders,
+  createProvider,
+  getDashboardData,
+  updateJobStatus,
 };
