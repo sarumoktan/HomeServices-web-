@@ -1,4 +1,6 @@
-const {AppError,registerUser,verifyOtp,resendOtp,loginUser,} = require('./auth.service');
+const { AppError, registerUser, verifyOtp, resendOtp, loginUser } = require('./auth.service');
+const User = require('./auth.model');
+
 const handleError = (res, err, context) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -19,7 +21,7 @@ const register = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: 'Registration successful! Enter the 6-digit code sent to your email.',
+      message: 'Registration successful! Enter the 6-digit code sent to your email or phone.',
       data: user,
     });
   } catch (err) {
@@ -28,16 +30,17 @@ const register = async (req, res) => {
 };
 
 const verifyOtpController = async (req, res) => {
-  console.log("reached here");
   try {
-    const { email, otp } = req.body;
-    const result = await verifyOtp(email, otp);
+    const { email, phone, otp } = req.body;
+    const identifier = email || phone;
+    
+    const result = await verifyOtp(identifier, otp);
 
-    if (result.alreadyVerified) {
-      return res.status(200).json({ success: true, message: 'Email is already verified.' });
+    if (result && result.alreadyVerified) {
+      return res.status(200).json({ success: true, message: 'Account is already verified.' });
     }
 
-    return res.status(200).json({ success: true, message: 'Email verified successfully.' });
+    return res.status(200).json({ success: true, message: 'Verified successfully.' });
   } catch (err) {
     return handleError(res, err, 'Verify OTP');
   }
@@ -45,10 +48,11 @@ const verifyOtpController = async (req, res) => {
 
 const resendOtpController = async (req, res) => {
   try {
-    const { email } = req.body;
-    await resendOtp(email);
+    const { email, phone } = req.body;
+    const identifier = email || phone;
+    await resendOtp(identifier);
 
-    return res.status(200).json({ success: true, message: 'A new code has been sent to your email.' });
+    return res.status(200).json({ success: true, message: 'A new code has been sent.' });
   } catch (err) {
     return handleError(res, err, 'Resend OTP');
   }
@@ -69,9 +73,43 @@ const login = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const { email, phone, firstName, lastName, address } = req.body;
+
+    let user = await User.findOne({ 
+      where: email ? { email } : { phone } 
+    });
+
+    if (user) {
+      user.firstName = firstName || user.firstName;
+      user.lastName = lastName || user.lastName;
+      user.address = address || user.address;
+      await user.save();
+    } else {
+      await User.create({
+        firstName: firstName || 'Unknown',
+        lastName: lastName || 'Unknown',
+        email: email || null,
+        phone: phone || null,
+        address: address || null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: { firstName, lastName, address },
+    });
+  } catch (err) {
+    return handleError(res, err, 'Update Profile');
+  }
+};
+
 module.exports = {
   register,
   verifyOtp: verifyOtpController,
   resendOtp: resendOtpController,
   login,
+  updateProfile,
 };
