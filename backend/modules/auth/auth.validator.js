@@ -1,4 +1,3 @@
-// backend/modules/auth/auth.validator.js
 const { body } = require('express-validator');
 
 const registerValidator = [
@@ -13,28 +12,32 @@ const registerValidator = [
     .isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
 
   body('email')
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .normalizeEmail(),
 
   body('phone')
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty().withMessage('Phone number is required')
     .matches(/^\+?[1-9]\d{7,14}$/).withMessage('Invalid phone number format'),
+
+  body().custom((value, { req }) => {
+    if (!req.body.email && !req.body.phone) {
+      throw new Error('Either email or phone number is required');
+    }
+    return true;
+  }),
 
   body('password')
     .notEmpty().withMessage('Password is required')
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
 
-  // Registration only ever offers "user" or "provider" from the frontend.
-  // "admin" accounts should be created manually/seeded, not via public registration.
   body('role')
     .trim()
     .notEmpty().withMessage('Role is required')
     .isIn(['user', 'provider']).withMessage('Role must be either user or provider'),
 
-  // Only required when registering as a provider
   body('serviceType')
     .if(body('role').equals('provider'))
     .trim()
@@ -48,18 +51,42 @@ const registerValidator = [
 
 const resendOtpValidator = [
   body('email')
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .normalizeEmail(),
+
+  body('phone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^\+?[1-9]\d{7,14}$/).withMessage('Invalid phone number format'),
+
+  body().custom((value, { req }) => {
+    if (!req.body.email && !req.body.phone) {
+      throw new Error('Either email or phone number is required');
+    }
+    return true;
+  }),
 ];
 
 const verifyOtpValidator = [
   body('email')
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .normalizeEmail(),
+
+  body('phone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^\+?[1-9]\d{7,14}$/).withMessage('Invalid phone number format'),
+
+  body().custom((value, { req }) => {
+    if (!req.body.email && !req.body.phone) {
+      throw new Error('Either email or phone number is required');
+    }
+    return true;
+  }),
 
   body('otp')
     .trim()
@@ -82,4 +109,3 @@ module.exports = {
   verifyOtpValidator,
   loginValidator,
 };
-
