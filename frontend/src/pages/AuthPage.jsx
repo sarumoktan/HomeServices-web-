@@ -4,6 +4,8 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
   const [step, setStep] = useState("auth");
   const [useEmail, setUseEmail] = useState(false);
   const [identifier, setIdentifier] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  const [hourlyRate, setHourlyRate] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
@@ -20,44 +22,55 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
   const handleAuthSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!identifier.trim()) {
-      setErrorMsg(useEmail ? "Please enter your email address." : "Please enter your phone number.");
+      setErrorMsg(
+        useEmail
+          ? "Please enter your email address."
+          : "Please enter your phone number."
+      );
       return;
     }
+
+    if (userType === "provider" && (!serviceType.trim() || !hourlyRate)) {
+      setErrorMsg("Service type and hourly rate are required for providers.");
+      return;
+    }
+
     setErrorMsg("");
     setLoading(true);
 
     try {
-      let currentEmail = "";
-      let currentPhone = "";
+      let requestBody = {
+        role: userType === "provider" ? "provider" : "user",
+        password: password,
+        firstName: "Pending",
+        lastName: "User",
+        ...(userType === "provider" && {
+          serviceType: serviceType.trim(),
+          hourlyRate: Number(hourlyRate),
+        }),
+      };
 
       if (useEmail) {
-        currentEmail = identifier.trim();
-        currentPhone = `+97798${Math.floor(10000000 + Math.random() * 90000000)}`;
+        const currentEmail = identifier.trim();
         setEmailAddress(currentEmail);
+        requestBody.email = currentEmail;
       } else {
-        currentPhone = identifier.trim();
-        currentEmail = `${identifier.replace(/[^0-9]/g, "") || "user"}@placeholder.com`;
+        const currentPhone = identifier.trim();
         setPhone(currentPhone);
+        requestBody.phone = currentPhone;
       }
 
       const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName: firstName.trim() || (useEmail ? identifier.split("@")[0] : "Valued"),
-          lastName: lastName.trim() || (userType === "provider" ? "Provider" : "Customer"),
-          email: currentEmail,
-          phone: currentPhone,
-          password: password,
-          role: userType === "provider" ? "provider" : "user",
-          serviceType: userType === "provider" ? "General Home Service" : undefined,
-          hourlyRate: userType === "provider" ? 500 : undefined,
-        }),
+        body: JSON.stringify(requestBody),
       });
-      
+
       const data = await response.json();
       if (!response.ok) {
-        const detailedError = data.errors ? data.errors.map(err => err.message).join(", ") : data.message;
+        const detailedError = data.errors
+          ? data.errors.map((err) => err.message).join(", ")
+          : data.message;
         throw new Error(detailedError || "Failed to send verification code.");
       }
 
@@ -97,13 +110,14 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
     setLoading(true);
 
     try {
+      const verificationPayload = useEmail
+        ? { email: emailAddress, otp: enteredOtp }
+        : { phone: phone, otp: enteredOtp };
+
       const response = await fetch("http://localhost:5000/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: emailAddress || identifier,
-          otp: enteredOtp,
-        }),
+        body: JSON.stringify(verificationPayload),
       });
 
       const data = await response.json();
@@ -125,18 +139,34 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
     setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await fetch("http://localhost:5000/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailAddress || identifier,
+          phone: phone || identifier,
+          firstName,
+          lastName,
+          address,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update profile.");
+      }
+
       setLoading(false);
-      onLogin(userType, { 
-        fullName: `${firstName} ${lastName}`.trim(), 
-        address, 
-        email: emailAddress || identifier, 
-        phone: phone || identifier, 
-        role: userType 
+      onLogin(userType, {
+        fullName: `${firstName} ${lastName}`.trim(),
+        address,
+        email: emailAddress || identifier,
+        phone: phone || identifier,
+        role: userType,
       });
     } catch (err) {
       setLoading(false);
-      setErrorMsg("Failed to complete profile.");
+      setErrorMsg(err.message || "Failed to complete profile.");
     }
   };
 
@@ -145,14 +175,43 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
       <div className="w-[min(420px,100%)] p-9 text-center bg-white border border-stone-200 rounded-2xl shadow-sm">
         
         {step === "auth" && (
+          <div className="flex bg-stone-100 p-1 rounded-xl mb-6 border border-stone-200">
+            <button
+              type="button"
+              onClick={() => setUserType("user")}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                userType === "user"
+                  ? "bg-white text-emerald-700 shadow-sm"
+                  : "text-stone-500 hover:text-stone-800"
+              }`}
+            >
+              Customer
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserType("provider")}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                userType === "provider"
+                  ? "bg-white text-emerald-700 shadow-sm"
+                  : "text-stone-500 hover:text-stone-800"
+              }`}
+            >
+              Service Provider
+            </button>
+          </div>
+        )}
+
+        {step === "auth" && (
           <>
             <div className="font-extrabold text-[32px] mb-4 tracking-tight">
-              <span className="text-[#E8AE3F]">Home</span>{" "}
+              <span className="text-emerald-600">Home</span>{" "}
               <span className="text-stone-900 font-normal">service</span>
             </div>
 
             <p className="text-stone-600 text-[15px] leading-relaxed mb-7 max-w-[320px] mx-auto">
-              We'll sign you in or create a new account if you don't have one yet.
+              {userType === "provider"
+                ? "Sign in as a professional service provider to receive and manage jobs."
+                : "We'll sign you in or create a new account if you don't have one yet."}
             </p>
 
             {errorMsg && (
@@ -169,20 +228,45 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                   placeholder={useEmail ? "name@example.com" : "Phone number"}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="w-full h-[52px] rounded-xl border-1.5 border-[#E8AE3F] bg-white text-stone-900 px-4 text-base outline-none shadow-sm transition focus:border-amber-600"
+                  className="w-full h-[52px] rounded-xl border-1.5 border-emerald-500 bg-white text-stone-900 px-4 text-base outline-none shadow-sm transition focus:border-emerald-700"
                 />
               </div>
+
+              {userType === "provider" && (
+                <>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Service Type (e.g. Plumbing, Cleaning)"
+                      value={serviceType}
+                      onChange={(e) => setServiceType(e.target.value)}
+                      className="w-full h-[52px] rounded-xl border-1.5 border-emerald-500 bg-white text-stone-900 px-4 text-base outline-none shadow-sm transition focus:border-emerald-700"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <input
+                      type="number"
+                      required
+                      placeholder="Hourly Rate ($)"
+                      value={hourlyRate}
+                      onChange={(e) => setHourlyRate(e.target.value)}
+                      className="w-full h-[52px] rounded-xl border-1.5 border-emerald-500 bg-white text-stone-900 px-4 text-base outline-none shadow-sm transition focus:border-emerald-700"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="flex items-center justify-start gap-3 mb-6">
                 <button
                   type="button"
                   onClick={() => {
-                    setUseEmail(!useEmail);
+                    setUseEmail((prev) => !prev);
                     setIdentifier("");
                     setErrorMsg("");
                   }}
                   className={`w-12 h-[26px] rounded-full relative cursor-pointer transition-colors p-0 border-none ${
-                    useEmail ? "bg-[#E8AE3F]" : "bg-stone-300"
+                    useEmail ? "bg-emerald-600" : "bg-stone-300"
                   }`}
                 >
                   <span
@@ -199,9 +283,9 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-[52px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-base font-semibold cursor-pointer shadow-md shadow-sky-500/20 mb-7 transition opacity-disabled:70 flex items-center justify-center"
+                className="w-full h-[52px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-base font-semibold cursor-pointer shadow-md shadow-emerald-600/20 mb-7 transition opacity-disabled:70 flex items-center justify-center"
               >
-                {loading ? "Please wait..." : "Continue"}
+                {loading ? "Please wait..." : `Continue as ${userType === "provider" ? "Provider" : "Customer"}`}
               </button>
             </form>
           </>
@@ -214,12 +298,13 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
             </h2>
 
             <div className="text-sm text-stone-500 mb-5">
-              We sent a temporary 6-digit code to your {useEmail ? "email" : "phone number"}:<br />
+              We sent a temporary 6-digit code to your{" "}
+              {useEmail ? "email" : "phone number"}:<br />
               <strong className="text-stone-900">{identifier}</strong>{" "}
               <button
                 type="button"
                 onClick={() => setStep("auth")}
-                className="bg-transparent border-none text-[#E8AE3F] cursor-pointer text-xs font-medium hover:underline"
+                className="bg-transparent border-none text-emerald-600 cursor-pointer text-xs font-medium hover:underline"
               >
                 [Change]
               </button>
@@ -241,7 +326,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
                   value={digit}
                   onChange={(e) => handleOtpChange(e.target, index)}
                   onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                  className="w-[44px] h-[48px] text-center text-xl font-bold rounded-xl border-1.5 border-[#E8AE3F] bg-white text-stone-900 outline-none shadow-sm focus:border-amber-600"
+                  className="w-[44px] h-[48px] text-center text-xl font-bold rounded-xl border-1.5 border-emerald-500 bg-white text-stone-900 outline-none shadow-sm focus:border-emerald-700"
                 />
               ))}
             </div>
@@ -249,7 +334,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-[52px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-base font-semibold cursor-pointer shadow-md shadow-sky-500/20 transition flex items-center justify-center"
+              className="w-full h-[52px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-base font-semibold cursor-pointer shadow-md shadow-emerald-600/20 transition flex items-center justify-center"
             >
               {loading ? "Verifying..." : "Verify OTP"}
             </button>
@@ -259,7 +344,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
         {step === "profile" && (
           <form onSubmit={handleCompleteProfileSubmit} className="text-left">
             <h2 className="font-extrabold text-[26px] mb-1.5 text-center text-stone-900">
-              Complete Profile
+              Complete {userType === "provider" ? "Provider" : "Customer"} Profile
             </h2>
             <p className="text-sm text-stone-500 mb-5 text-center">
               Please provide your details to finish setting up your account.
@@ -273,7 +358,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
 
             <div className="mb-3.5">
               <label className="block text-xs font-medium text-stone-700 mb-1.5">
-                First Name <span className="text-[#E8AE3F]">*</span>
+                First Name <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="text"
@@ -286,7 +371,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
 
             <div className="mb-3.5">
               <label className="block text-xs font-medium text-stone-700 mb-1.5">
-                Last Name <span className="text-[#E8AE3F]">*</span>
+                Last Name <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="text"
@@ -299,7 +384,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
 
             <div className="mb-5">
               <label className="block text-xs font-medium text-stone-700 mb-1.5">
-                Address <span className="text-[#E8AE3F]">*</span>
+                Address <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="text"
@@ -314,7 +399,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-[52px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-base font-semibold cursor-pointer shadow-md shadow-sky-500/20 transition flex items-center justify-center"
+              className="w-full h-[52px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-base font-semibold cursor-pointer shadow-md shadow-emerald-600/20 transition flex items-center justify-center"
             >
               {loading ? "Saving Profile..." : "Complete Profile"}
             </button>
