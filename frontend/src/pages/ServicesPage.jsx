@@ -1,5 +1,5 @@
-import React from "react";
-import { SERVICES, PROVIDERS } from "../constants/data";
+import React, { useState, useEffect, useCallback } from "react";
+import { SERVICES } from "../constants/data";
 import { SearchFilter } from "../components/SearchFilter";
 import { ProviderCard } from "../components/ProviderCard";
 
@@ -9,17 +9,65 @@ export function ServicesPage({
   search,
   setSearch,
   setShowChat,
+  setSelectedChatProvider,
   setBooking,
   loggedIn,
   onNavigate,
   setShowMap,
 }) {
-  const filtered = PROVIDERS.filter(
-    (p) =>
-      (filter === "All" || p.service === filter) &&
-      (p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.service.toLowerCase().includes(search.toLowerCase()))
-  );
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadProviders = useCallback(async () => {
+    let apiProviders = [];
+    try {
+      const response = await fetch('http://localhost:5000/api/providers');
+      const result = await response.json();
+      if (result.success && result.data) {
+        apiProviders = result.data.filter(
+          (p) => p.name !== "Rajesh Kumar" && p.name !== "Hari bahadur" && p.name !== "Ramesh Chhetri" && p.name !== "Basanta Rai"
+        );
+      }
+    } catch (error) {
+      console.error("Backend fetch failed, relying on LocalStorage:", error);
+    }
+    
+    // Retrieve dynamic items saved from CompleteProfileModal
+    const savedProviders = JSON.parse(localStorage.getItem('dynamic_providers') || '[]');
+    
+    // Prioritize locally registered providers
+    setProviders([...savedProviders, ...apiProviders]);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadProviders();
+
+    const handleUpdate = () => {
+      loadProviders();
+    };
+
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('providerUpdated', handleUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('providerUpdated', handleUpdate);
+    };
+  }, [loadProviders]);
+
+  const filtered = providers.filter((p) => {
+    const matchesFilter = filter === "All" || 
+      (p.service && p.service.toLowerCase() === filter.toLowerCase()) || 
+      (p.category && p.category.toLowerCase() === filter.toLowerCase());
+
+    const matchesSearch = !search ||
+      (p.name && p.name.toLowerCase().includes(search.toLowerCase())) ||
+      (p.service && p.service.toLowerCase().includes(search.toLowerCase())) ||
+      (p.category && p.category.toLowerCase().includes(search.toLowerCase()));
+
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div className="w-full min-h-screen bg-[#F7F6F2] py-[42px] px-6 font-sans">
@@ -35,20 +83,25 @@ export function ServicesPage({
         />
 
         <div className="text-[#5C6370] text-[13px] mb-[18px] font-medium">
-          {filtered.length} providers found
+          {loading ? "Loading providers..." : `${filtered.length} providers found`}
         </div>
 
         <div className="grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-4">
           {filtered.map((p) => {
-            const svc = SERVICES.find((s) => s.name === p.service);
+            const svc = SERVICES.find((s) => s.name === p.service || s.name === p.category);
             return (
               <ProviderCard
-                key={p.id}
+                key={p.id || p._id}
                 provider={p}
                 service={svc}
                 loggedIn={loggedIn}
                 onNavigate={onNavigate}
-                onChatClick={() => setShowChat(true)}
+                onChatClick={() => {
+                  if (typeof setSelectedChatProvider === 'function') {
+                    setSelectedChatProvider(p);
+                  }
+                  setShowChat(true);
+                }}
                 onBookNow={(providerData) => setBooking(providerData)}
               />
             );
