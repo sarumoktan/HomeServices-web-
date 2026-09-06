@@ -3,10 +3,11 @@ import { SERVICES } from "../constants/data";
 import { SearchFilter } from "../components/SearchFilter";
 import { ProviderCard } from "../components/ProviderCard";
 
-export function ServicesPage({
+export default function ServicesPage({
   filter,
   setFilter,
   search,
+  searchQuery,
   setSearch,
   setShowChat,
   setSelectedChatProvider,
@@ -32,7 +33,7 @@ export function ServicesPage({
       console.error("Backend fetch failed, relying on LocalStorage:", error);
     }
     
-    // Retrieve dynamic items saved from CompleteProfileModal
+    // Retrieve dynamic items saved from onboarding
     const savedProviders = JSON.parse(localStorage.getItem('dynamic_providers') || '[]');
     
     // Prioritize locally registered providers
@@ -57,14 +58,22 @@ export function ServicesPage({
   }, [loadProviders]);
 
   const filtered = providers.filter((p) => {
-    const matchesFilter = filter === "All" || 
-      (p.service && p.service.toLowerCase() === filter.toLowerCase()) || 
-      (p.category && p.category.toLowerCase() === filter.toLowerCase());
+    const currentFilter = (filter || "All").trim().toLowerCase();
+    const pService = (p.service || "").trim().toLowerCase();
+    const pCategory = (p.category || "").trim().toLowerCase();
 
-    const matchesSearch = !search ||
-      (p.name && p.name.toLowerCase().includes(search.toLowerCase())) ||
-      (p.service && p.service.toLowerCase().includes(search.toLowerCase())) ||
-      (p.category && p.category.toLowerCase().includes(search.toLowerCase()));
+    // Robust case-insensitive and trimmed filter match
+    const matchesFilter = currentFilter === "all" || 
+      pService === currentFilter || 
+      pCategory === currentFilter;
+
+    const currentSearch = (search || "").trim().toLowerCase();
+    const pName = (p.name || "").trim().toLowerCase();
+
+    const matchesSearch = !currentSearch ||
+      pName.includes(currentSearch) ||
+      pService.includes(currentSearch) ||
+      pCategory.includes(currentSearch);
 
     return matchesFilter && matchesSearch;
   });
