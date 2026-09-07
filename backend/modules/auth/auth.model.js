@@ -25,6 +25,12 @@ const User = sequelize.define('User', {
     allowNull: true,
     unique: true,
   },
+  // === FIXED: added — this column didn't exist before, so the address
+  // entered in the "Complete Profile" step was silently discarded. ===
+  address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
