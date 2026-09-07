@@ -1,65 +1,108 @@
 import React from "react";
+import { Star, MessageCircle, Calendar } from "lucide-react";
 
-export function ProviderCard({ provider, service, onChatClick, onBookNow, loggedIn, onNavigate }) {
-  const p = provider || {};
+export function ProviderCard({
+  provider,
+  service,
+  loggedIn,
+  onNavigate,
+  onChatClick,
+  onBookNow,
+}) {
+  const handleChatAction = () => {
+    if (!loggedIn) {
+      onNavigate("auth");
+      return;
+    }
+    if (onChatClick) onChatClick();
+  };
+
+  const handleBookAction = () => {
+    if (!loggedIn) {
+      onNavigate("auth");
+      return;
+    }
+    if (onBookNow) onBookNow(provider);
+  };
 
   return (
-    <div className="bg-white border border-black/10 rounded-[24px] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between w-full">
+    <div className="bg-white rounded-2xl border border-black/10 shadow-sm hover:shadow-md transition-all p-4 flex flex-col justify-between">
       <div>
-        {/* Top Service Image Banner */}
-        <div className="w-full h-[160px] rounded-[16px] overflow-hidden mb-3.5 bg-stone-100">
-          <img 
-            src={p.image || "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80"} 
-            alt={p.name} 
-            className="w-full h-full object-cover"
-          />
+        {/* Provider Image / Gradient Header */}
+        <div className="relative w-full h-40 rounded-xl overflow-hidden bg-stone-100 mb-4">
+          {provider.image ? (
+            <img
+              src={provider.image}
+              alt={provider.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div
+              className={`w-full h-full flex items-center justify-center text-white text-xl font-bold ${
+                provider.grad || "bg-gradient-to-br from-[#2E4CDB] to-[#1d35a6]"
+              }`}
+            >
+              {provider.initials || "DP"}
+            </div>
+          )}
         </div>
 
-        {/* Provider Profile Info & Verified Badge */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-full bg-stone-100 border border-black/5 flex items-center justify-center font-bold text-stone-700 text-xs shrink-0">
-            {p.initials || "HS"}
+        {/* Provider Info Row */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center font-bold text-sm text-stone-800 shrink-0 border border-stone-200">
+            {provider.initials || provider.name?.slice(0, 2).toUpperCase() || "DP"}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <h3 className="font-bold text-stone-900 text-base truncate">{p.name}</h3>
-              {p.verified && (
-                <span className="bg-emerald-50 text-emerald-600 text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0">
-                  Verified
-                </span>
-              )}
-            </div>
-            <p className="text-stone-500 text-xs truncate">
-              {p.service} &bull; {p.distance}
+            <h4 className="font-bold text-sm text-[#17181A] truncate">
+              {provider.name}
+            </h4>
+            <p className="text-xs text-[#17181A]/60 truncate">
+              {provider.service || provider.category}
             </p>
           </div>
         </div>
 
-        {/* Rating and Reviews */}
-        <div className="flex items-center gap-1.5 text-xs text-stone-700 mb-3">
-          <span className="text-emerald-600 font-bold">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-          <span className="font-bold text-stone-900">{p.rating}</span>
-          <span className="text-stone-400">&bull; {p.reviews} reviews</span>
+        {/* Rating Section */}
+        <div className="flex items-center gap-1.5 mb-3 text-xs">
+          <div className="flex items-center text-amber-500">
+            <Star className="w-3.5 h-3.5 fill-current" />
+          </div>
+          <span className="font-bold text-[#17181A]">
+            {provider.rating || 5.0}
+          </span>
+          <span className="text-[#17181A]/50">
+            • {provider.reviews || 0} reviews
+          </span>
         </div>
 
-        {/* Pricing and Experience/Bio */}
+        {/* Price Section */}
         <div className="mb-4">
-          <div className="flex items-baseline gap-1 mb-1">
-            <span className="font-extrabold text-stone-900 text-lg">NPR {p.price}</span>
-            <span className="text-stone-500 text-xs">/hr</span>
-            <span className="text-stone-400 text-xs ml-auto italic truncate max-w-[150px]">"{p.bio}"</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-lg font-bold text-[#17181A]">
+              NPR {provider.price || provider.hourlyRate || 150}
+            </span>
+            <span className="text-xs text-[#17181A]/60">/hr</span>
           </div>
         </div>
       </div>
 
-      {/* Action Button: Green Book Now */}
-      <button 
-        onClick={() => (loggedIn ? onBookNow(p) : onNavigate("auth"))}
-        disabled={!p.available && loggedIn}
-        className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition-colors cursor-pointer"
-      >
-        Book Now
-      </button>
+      {/* Button Area (Side-by-side layout) */}
+      <div className="flex items-center gap-2 pt-2 border-t border-stone-100">
+        <button
+          onClick={handleChatAction}
+          className="flex-1 flex items-center justify-center gap-1.5 border border-[#2E4CDB] text-[#2E4CDB] hover:bg-blue-50 py-2.5 px-3 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+        >
+          <MessageCircle className="w-3.5 h-3.5" />
+          Chat
+        </button>
+        <button
+          onClick={handleBookAction}
+          className="flex-1 flex items-center justify-center gap-1.5 bg-[#00A86B] hover:bg-[#00965E] text-white py-2.5 px-3 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-sm"
+        >
+          <Calendar className="w-3.5 h-3.5" />
+          Book Now
+        </button>
+      </div>
     </div>
   );
 }
