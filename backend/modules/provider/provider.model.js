@@ -1,13 +1,33 @@
 const sequelize = require('../../config/database');
 const { QueryTypes } = require('sequelize');
 
+// === FIXED: Query the real `users` table (where AuthPage registration
+// actually writes provider accounts) instead of a separate, empty
+// `providers` table that nothing in the live app ever inserts into. ===
 async function findAllProviders() {
-  const rows = await sequelize.query('SELECT * FROM providers', { 
-    type: QueryTypes.SELECT 
-  });
+  const rows = await sequelize.query(
+    `SELECT
+       id,
+       "firstName",
+       "lastName",
+       email,
+       phone,
+       address,
+       "serviceType",
+       "hourlyRate",
+       "isVerified",
+       "createdAt"
+     FROM users
+     WHERE role = 'provider'
+     ORDER BY "createdAt" DESC`,
+    { type: QueryTypes.SELECT }
+  );
   return rows;
 }
 
+// Kept for backward compatibility with the old /api/providers/register
+// endpoint (BecomeProvider.jsx), even though that flow currently isn't
+// wired into App.jsx. Safe to remove later if you drop that form entirely.
 async function insertProvider(data) {
   const query = `
     INSERT INTO providers (name, service, category, hourly_rate, distance, bio, image_url, rating, is_verified, "createdAt", "updatedAt")
@@ -28,26 +48,26 @@ async function insertProvider(data) {
     now,
     now
   ];
-  
+
   const results = await sequelize.query(query, {
     replacements: values,
     type: QueryTypes.RAW
   });
-  
+
   const rows = results[0];
   return Array.isArray(rows) ? rows[0] : rows;
 }
 
 async function fetchDashboardStats() {
   const statsQuery = `
-    SELECT 
+    SELECT
       COUNT(*) FILTER (WHERE status = 'Completed') AS completed_jobs,
       COALESCE(SUM(price), 45200) AS total_earnings
     FROM jobs;
   `;
   const results = await sequelize.query(statsQuery, { type: QueryTypes.SELECT });
   const row = results[0] || {};
-  
+
   return {
     earnings: Number(row.total_earnings) || 45200,
     completedJobs: Number(row.completed_jobs) || 28,
@@ -57,9 +77,9 @@ async function fetchDashboardStats() {
 
 async function updateJobStatusInDb(jobId, status) {
   const query = `
-    UPDATE jobs 
-    SET status = ? 
-    WHERE id = ? 
+    UPDATE jobs
+    SET status = ?
+    WHERE id = ?
     RETURNING *;
   `;
   const results = await sequelize.query(query, {
