@@ -1,10 +1,9 @@
-// backend/modules/chat/chat.route.js
 const express = require('express');
 const router = express.Router();
-const { getMessages, sendMessage } = require('./chat.controller');
-const { verifyToken } = require('../../middleware/validator.middleware'); // Adjust path as needed
+const { getChatHistory, getConversations } = require('./chat.controller');
+const { requireAuth } = require('../../middleware/auth.middleware');
 
-router.get('/:jobId', verifyToken, getMessages);
-router.post('/', verifyToken, sendMessage);
+router.get('/conversations', requireAuth, getConversations);
+router.get('/:peerId/history', requireAuth, getChatHistory);
 
 module.exports = router;
