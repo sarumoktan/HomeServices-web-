@@ -1,35 +1,54 @@
-// backend/modules/chat/chat.controller.js
-const Chat = require('./chat.model');
+const { getRoomId, getHistory } = require('./chat.service');
+const Message = require('./chat.model');
+const { Op } = require('sequelize');
 
-// Fetch message history for a specific job using Sequelize
-exports.getMessages = async (req, res) => {
+async function getChatHistory(req, res) {
   try {
-    const { jobId } = req.params;
-    const messages = await Chat.findAll({
-      where: { jobId },
-      order: [['timestamp', 'ASC']]
-    });
-    res.status(200).json({ success: true, data: messages });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
+    const userId = req.user.id;
+    const { peerId } = req.params;
 
-// Save a new message using Sequelize
-exports.sendMessage = async (req, res) => {
+    const roomId = getRoomId(userId, peerId);
+    const history = await getHistory(roomId);
+
+    res.json({ roomId, history });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+async function getConversations(req, res) {
   try {
-    const { jobId, receiver, message } = req.body;
-    const sender = req.user.id; // Sequelize uses .id by default
+    const userId = req.user.id;
 
-    const newMessage = await Chat.create({
-      jobId,
-      sender,
-      receiver,
-      message
+    const messages = await Message.findAll({
+      where: {
+        roomId: { [Op.like]: `%${userId}%` },
+      },
+      order: [['createdAt', 'DESC']],
     });
 
-    res.status(201).json({ success: true, data: newMessage });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    const roomsMap = {};
+    for (const m of messages) {
+      if (!roomsMap[m.roomId]) {
+        roomsMap[m.roomId] = m;
+      }
+    }
+
+    const conversations = Object.values(roomsMap).map((m) => {
+      const ids = m.roomId.split('_');
+      const peerId = ids.find((id) => id !== userId);
+      return {
+        roomId: m.roomId,
+        peerId,
+        lastMessage: m.text,
+        lastMessageTime: m.createdAt,
+      };
+    });
+
+    res.json({ success: true, data: conversations });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
-};
+}
+
+module.exports = { getChatHistory, getConversations };

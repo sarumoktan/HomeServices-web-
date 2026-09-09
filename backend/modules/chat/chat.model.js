@@ -1,36 +1,52 @@
-// backend/modules/chat/chat.model.js
+/**
+ * chat.model.js (Sequelize / Postgres)
+ */
+
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/database'); // Adjust to your sequelize connection file
+const sequelize = require('../../config/database');
 
-const Chat = sequelize.define('Chat', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+const ChatMessage = sequelize.define(
+  'ChatMessage',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+
+    roomId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    senderId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+
+    senderRole: {
+      type: DataTypes.ENUM('customer', 'provider'),
+      allowNull: false,
+    },
+
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   },
-  jobId: {
-    type: DataTypes.INTEGER, // Match your Booking model primary key type (INTEGER or UUID)
-    allowNull: false
-  },
-  sender: {
-    type: DataTypes.INTEGER, // Match your User model primary key type
-    allowNull: false
-  },
-  receiver: {
-    type: DataTypes.INTEGER, // Match your User model primary key type
-    allowNull: false
-  },
-  message: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
-  timestamp: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+  {
+    tableName: 'chat_messages',
+    timestamps: true,
+
+    indexes: [
+      {
+        fields: ['roomId'],
+      },
+      {
+        fields: ['roomId', 'createdAt'],
+      },
+    ],
   }
-}, {
-  tableName: 'chats',
-  timestamps: false
-});
+);
 
-module.exports = Chat;
+module.exports = ChatMessage;
