@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X, Calendar, Clock, MapPin, CheckCircle2 } from "lucide-react";
+import { SERVICES } from "../../constants/data";
 
 export function BookingModal({ provider, service, onClose, onConfirm }) {
   const [date, setDate] = useState("");
@@ -8,13 +9,54 @@ export function BookingModal({ provider, service, onClose, onConfirm }) {
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      onConfirm?.({ provider, service, date, time, address, notes });
-      onClose();
-    }, 1200);
+
+    const serviceName = service || provider?.service;
+    const matchedService = SERVICES.find(
+      (s) => s.name.toLowerCase() === (serviceName || "").toLowerCase()
+    );
+
+    if (!matchedService) {
+      alert(
+        `Could not match "${serviceName}" to a known service. Please contact support.`
+      );
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          providerId: provider.id,
+          serviceId: matchedService.id,
+          bookingDate: date,
+          timeSlot: time,
+          serviceAddress: address,
+          specialInstructions: notes,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitted(true);
+        setTimeout(() => {
+          onConfirm?.(data.data);
+          onClose();
+        }, 1200);
+      } else {
+        alert(data.message || 'Booking failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+      alert('Connection error. Please try again.');
+    }
   };
 
   return (
@@ -22,7 +64,7 @@ export function BookingModal({ provider, service, onClose, onConfirm }) {
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between px-6 py-4 border-b border-black/5">
           <h2 className="text-lg font-bold text-[#17181A]">Book Service</h2>
-          <button 
+          <button
             onClick={onClose}
             className="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center text-[#17181A]/60 transition-colors"
           >
@@ -75,10 +117,12 @@ export function BookingModal({ provider, service, onClose, onConfirm }) {
                   className="w-full bg-transparent border-none outline-none text-sm text-[#17181A]"
                 >
                   <option value="">Select a time slot</option>
-                  <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
-                  <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
-                  <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
-                  <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                  <option value="08:00-10:00">08:00 AM - 10:00 AM</option>
+                  <option value="10:00-12:00">10:00 AM - 12:00 PM</option>
+                  <option value="12:00-14:00">12:00 PM - 02:00 PM</option>
+                  <option value="14:00-16:00">02:00 PM - 04:00 PM</option>
+                  <option value="16:00-18:00">04:00 PM - 06:00 PM</option>
+                  <option value="18:00-20:00">06:00 PM - 08:00 PM</option>
                 </select>
               </div>
             </div>
