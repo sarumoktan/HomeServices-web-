@@ -14,7 +14,6 @@ async function registerProvider(req, res) {
     const { category, serviceType, hourlyRate } = req.body;
     const effectiveServiceType = serviceType || category;
 
-    // Validate provider-specific fields
     if (!effectiveServiceType) {
       return res.status(400).json({ 
         success: false, 
@@ -39,9 +38,21 @@ async function registerProvider(req, res) {
   }
 }
 
+// === FIXED: dashboardData was never fetched — the call to
+// providerService.getDashboardData() was missing entirely, so this threw
+// "dashboardData is not defined" on every request. Now it actually calls
+// the service, passing the logged-in provider's id so results are scoped
+// to them instead of every provider combined. ===
 async function getDashboard(req, res) {
   try {
-    const dashboardData = await providerService.getDashboardData();
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authenticated — no provider id found on request.'
+      });
+    }
+
+    const dashboardData = await providerService.getDashboardData(req.user.id);
     res.status(200).json({ success: true, data: dashboardData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
