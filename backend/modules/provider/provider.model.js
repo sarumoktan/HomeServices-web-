@@ -1,9 +1,6 @@
 const sequelize = require('../../config/database');
 const { QueryTypes } = require('sequelize');
 
-// === FIXED: Query the real `users` table (where AuthPage registration
-// actually writes provider accounts) instead of a separate, empty
-// `providers` table that nothing in the live app ever inserts into. ===
 async function findAllProviders() {
   const rows = await sequelize.query(
     `SELECT
@@ -25,9 +22,6 @@ async function findAllProviders() {
   return rows;
 }
 
-// Kept for backward compatibility with the old /api/providers/register
-// endpoint (BecomeProvider.jsx), even though that flow currently isn't
-// wired into App.jsx. Safe to remove later if you drop that form entirely.
 async function insertProvider(data) {
   const query = `
     INSERT INTO providers (name, service, category, hourly_rate, distance, bio, image_url, rating, is_verified, "createdAt", "updatedAt")
@@ -58,27 +52,63 @@ async function insertProvider(data) {
   return Array.isArray(rows) ? rows[0] : rows;
 }
 
-async function fetchDashboardStats() {
+// === FIXED (2nd pass): the real table is `bookings`, not `jobs` — jobs
+// never existed for this data. Also `status` values are lowercase
+// ('completed', not 'Completed') per the Booking model's enum. Earnings
+// come from joining to `services` for price, since bookings itself has
+// no price column. There is currently no rating data anywhere in the
+// schema (no reviews table), so rating is returned as null rather than
+// faked — a real "Average Rating" needs a reviews table added later. ===
+async function fetchDashboardStats(providerId) {
   const statsQuery = `
     SELECT
-      COUNT(*) FILTER (WHERE status = 'Completed') AS completed_jobs,
-      COALESCE(SUM(price), 45200) AS total_earnings
-    FROM jobs;
+      COUNT(*) FILTER (WHERE b.status = 'completed') AS completed_jobs,
+      COALESCE(SUM(CAST(s.price AS NUMERIC)) FILTER (WHERE b.status = 'completed'), 0) AS total_earnings
+    FROM bookings b
+    LEFT JOIN services s ON s.id = b."serviceId"
+    WHERE b."providerId" = ?;
   `;
-  const results = await sequelize.query(statsQuery, { type: QueryTypes.SELECT });
-  const row = results[0] || {};
+  const activeQuery = `
+    SELECT
+      b.id,
+      b."bookingDate",
+      b."timeSlot",
+      b.status,
+      u."firstName" AS "customerFirstName",
+      u."lastName" AS "customerLastName"
+    FROM bookings b
+    LEFT JOIN users u ON u.id = b."customerId"
+    WHERE b."providerId" = ?
+      AND b.status IN ('pending', 'confirmed')
+    ORDER BY b."bookingDate" ASC;
+  `;
+
+  const statsResults = await sequelize.query(statsQuery, {
+    replacements: [providerId],
+    type: QueryTypes.SELECT
+  });
+  const activeResults = await sequelize.query(activeQuery, {
+    replacements: [providerId],
+    type: QueryTypes.SELECT
+  });
+
+  const row = statsResults[0] || {};
 
   return {
-    earnings: Number(row.total_earnings) || 45200,
-    completedJobs: Number(row.completed_jobs) || 28,
-    rating: 4.9
+    earnings: Number(row.total_earnings) || 0,
+    completedJobs: Number(row.completed_jobs) || 0,
+    rating: null, // no reviews table exists yet — see note above
+    activeRequests: activeResults
   };
 }
 
+// === FIXED: was updating a nonexistent `jobs` table — bookings live in
+// `bookings`. Status values must match the Booking model's enum exactly:
+// 'pending' | 'confirmed' | 'completed' | 'cancelled'. ===
 async function updateJobStatusInDb(jobId, status) {
   const query = `
-    UPDATE jobs
-    SET status = ?
+    UPDATE bookings
+    SET status = ?, "updatedAt" = NOW()
     WHERE id = ?
     RETURNING *;
   `;
