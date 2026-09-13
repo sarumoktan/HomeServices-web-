@@ -1,70 +1,152 @@
-import React from 'react';
-import { FiEdit2, FiPlus, FiUser, FiMail, FiMapPin } from 'react-icons/fi';
+import React, { useState, useEffect } from "react";
+import { User, Mail, MapPin, Edit3 } from "lucide-react";
 
-export default function ProfilePage() {
-  const profileDetails = [
-    { label: 'Name', value: 'simple moktan', icon: FiUser },
-    { label: 'Email', value: 'sarumoktan198@gmail.com', icon: FiMail },
-    { label: 'Address', value: 'jorpati,kathmandu', icon: FiMapPin },
-  ];
+export function ProfilePage({ currentUser, user, onUpdateUser }) {
+  const activeUser = currentUser || user;
+
+  const [name, setName] = useState(() => {
+    if (activeUser) {
+      return activeUser.fullName || activeUser.name || `${activeUser.firstName || ""} ${activeUser.lastName || ""}`.trim();
+    }
+    const saved = localStorage.getItem("currentUser");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.fullName || parsed.name || `${parsed.firstName || ""} ${parsed.lastName || ""}`.trim();
+      } catch (e) {}
+    }
+    return "";
+  });
+
+  const [address, setAddress] = useState(() => {
+    if (activeUser?.address) return activeUser.address;
+    const saved = localStorage.getItem("currentUser");
+    if (saved) {
+      try { return JSON.parse(saved).address || ""; } catch (e) {}
+    }
+    return "";
+  });
+
+  const [email, setEmail] = useState(() => {
+    if (activeUser?.email) return activeUser.email;
+    const saved = localStorage.getItem("currentUser");
+    if (saved) {
+      try { return JSON.parse(saved).email || ""; } catch (e) {}
+    }
+    return "";
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    const userData = activeUser || (() => {
+      try {
+        return JSON.parse(localStorage.getItem("currentUser"));
+      } catch (e) {
+        return null;
+      }
+    })();
+
+    if (userData) {
+      setName(userData.fullName || userData.name || `${userData.firstName || ""} ${userData.lastName || ""}`.trim());
+      setAddress(userData.address || "");
+      setEmail(userData.email || "");
+    }
+  }, [activeUser]);
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    const updatedData = { ...(activeUser || {}), name, fullName: name, address, email };
+    
+    try {
+      localStorage.setItem("currentUser", JSON.stringify(updatedData));
+    } catch (err) {}
+
+    if (onUpdateUser) {
+      onUpdateUser(updatedData);
+    }
+    setIsEditing(false);
+  };
 
   return (
-    <div className="min-h-screen bg-[#fcfaf7] relative pb-16">
-      {/* Breadcrumb Header */}
-      <div className="max-w-6xl mx-auto px-6 py-4 text-sm text-gray-500">
-        <span className="hover:underline cursor-pointer">Home</span> / <span className="text-gray-800 font-medium">My Profile</span>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
-        {/* Left Column: Avatar & Address Book Section */}
-        <div className="space-y-6">
-          <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-3 shadow-inner">
-              <FiUser size={36} />
-            </div>
-            <h2 className="text-lg font-bold text-gray-800">simple moktan</h2>
-            <p className="text-xs text-gray-500 flex items-center mt-1">
-              <FiMapPin className="mr-1 text-gray-400" /> jorpati,kathmandu
-            </p>
+    <main className="max-w-7xl mx-auto px-4 py-10 font-sans text-stone-900">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left Column: User Card */}
+        <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm text-center h-fit">
+          <div className="w-20 h-20 bg-stone-100 rounded-full mx-auto flex items-center justify-center mb-4 text-stone-400">
+            <User className="w-10 h-10" />
           </div>
+          <h2 className="text-xl font-bold text-stone-900">{name || "User Profile"}</h2>
+          <p className="text-sm text-stone-500 mt-1 flex items-center justify-center gap-1">
+            <MapPin className="w-3.5 h-3.5" /> {address || "No address specified"}
+          </p>
+        </div>
 
-          {/* Address Book Card */}
-          <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex items-center justify-between">
-            <h3 className="font-bold text-gray-800 text-base">Address Book</h3>
-            <button className="bg-[#e85d24] text-white px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow hover:bg-opacity-90">
-              <FiPlus />
-              <span>Add</span>
+        {/* Right Column: Profile Details Form */}
+        <div className="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6 border-b border-stone-100 pb-4">
+            <h3 className="text-lg font-bold text-stone-900">Profile Details</h3>
+            <button 
+              onClick={() => setIsEditing(!isEditing)}
+              className="text-sm font-medium text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
+            >
+              <Edit3 className="w-4 h-4" /> {isEditing ? "Cancel" : "Edit"}
             </button>
           </div>
+
+          {isEditing ? (
+            <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">Name</label>
+                <input 
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:outline-none focus:border-stone-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">Address</label>
+                <input 
+                  type="text" 
+                  value={address} 
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-xl text-sm focus:outline-none focus:border-stone-900"
+                />
+              </div>
+              <button 
+                type="submit"
+                className="bg-stone-900 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-stone-800 transition-colors cursor-pointer"
+              >
+                Save Changes
+              </button>
+            </form>
+          ) : (
+            <div className="space-y-4 text-sm">
+              <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 flex justify-between items-center">
+                <div>
+                  <span className="text-xs text-stone-400 block uppercase font-semibold">Name</span>
+                  <span className="font-medium text-stone-800">{name || "Not provided"}</span>
+                </div>
+              </div>
+              <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 flex justify-between items-center">
+                <div>
+                  <span className="text-xs text-stone-400 block uppercase font-semibold">Email</span>
+                  <span className="font-medium text-stone-800">{email || "Not provided"}</span>
+                </div>
+              </div>
+              <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 flex justify-between items-center">
+                <div>
+                  <span className="text-xs text-stone-400 block uppercase font-semibold">Address</span>
+                  <span className="font-medium text-stone-800">{address || "Not provided"}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right Column: Profile Details List */}
-        <div className="md:col-span-2 bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">Profile Details</h2>
-          
-          <div className="space-y-4">
-            {profileDetails.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <div key={index} className="bg-gray-50/70 border border-gray-100 rounded-xl p-4 flex items-center justify-between transition hover:bg-gray-50">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-gray-400">
-                      <Icon size={18} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400 font-medium">{item.label}</p>
-                      <p className="text-sm font-semibold text-gray-800 mt-0.5">{item.value}</p>
-                    </div>
-                  </div>
-                  <button className="text-[#e85d24] hover:bg-orange-50 p-2 rounded-lg transition">
-                    <FiEdit2 size={16} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
       </div>
-    </div>
+    </main>
   );
 }
