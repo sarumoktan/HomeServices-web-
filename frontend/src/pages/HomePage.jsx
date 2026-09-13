@@ -1,4 +1,6 @@
-﻿import { SERVICES } from "../constants/data";
+﻿import { useState } from "react";
+import { SERVICES } from "../constants/data";
+import homeServiceImg from "../assets/homeservice.png";
 
 export function HomePage({ onNavigate, setShowMap }) {
   const serviceCards = [
@@ -126,23 +128,17 @@ export function HomePage({ onNavigate, setShowMap }) {
             </div>
           </div>
 
-          <div className="relative h-80 lg:h-96 bg-stone-200 rounded-3xl overflow-hidden flex items-center justify-center border border-stone-300">
-            <div className="absolute top-6 left-6 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">Hey there!</div>
-            <div className="absolute bottom-6 right-6 bg-stone-900 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">Gemma Rose</div>
-            <div className="flex gap-4 items-center justify-center">
-              <div className="w-16 h-32 bg-stone-300 rounded-t-full flex flex-col items-center pt-2">
-                <div className="w-8 h-8 bg-stone-400 rounded-full mb-2"></div>
-                <div className="w-12 h-16 bg-stone-400 rounded-t-lg"></div>
-              </div>
-              <div className="w-16 h-32 bg-stone-300 rounded-t-full flex flex-col items-center pt-2">
-                <div className="w-8 h-8 bg-stone-400 rounded-full mb-2"></div>
-                <div className="w-12 h-16 bg-stone-400 rounded-t-lg"></div>
-              </div>
-            </div>
+          {/* Hero Image Container */}
+          <div className="relative h-80 lg:h-96 rounded-3xl overflow-hidden flex items-center justify-center border border-stone-300 shadow-sm bg-stone-100">
+            <img 
+              src={homeServiceImg} 
+              alt="Home Service" 
+              className="w-full h-full object-cover" 
+            />
           </div>
         </div>
 
-        {/* Feature Strips (Updated to Light Theme) */}
+        {/* Feature Strips */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white border border-stone-200 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
@@ -315,7 +311,7 @@ export function HomePage({ onNavigate, setShowMap }) {
         </div>
       </section>
 
-      {/* Banner Strip (Updated to Light Theme / Clean Borders) */}
+      {/* Banner Strip */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 p-8 rounded-3xl flex flex-col justify-between">
@@ -331,7 +327,7 @@ export function HomePage({ onNavigate, setShowMap }) {
               <p className="text-blue-700 text-sm">Fast, encrypted checkout — every time.</p>
             </div>
             <button 
-              onClick={() => onNavigate("auth")}
+              onClick={() => onNavigate("become-provider")}
               className="bg-blue-600 text-white hover:bg-blue-700 font-medium px-5 py-2.5 rounded-xl transition-colors shrink-0 cursor-pointer text-sm shadow-sm"
             >
               Join as Provider →
@@ -340,7 +336,7 @@ export function HomePage({ onNavigate, setShowMap }) {
         </div>
       </section>
 
-      {/* Final CTA (White Background) */}
+      {/* Final CTA */}
       <div className="bg-white border-t border-stone-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
@@ -348,7 +344,7 @@ export function HomePage({ onNavigate, setShowMap }) {
             <p className="text-stone-600 text-sm">Join 1,200+ providers growing their income on ServiHub.</p>
           </div>
           <button 
-            onClick={() => onNavigate("auth")}
+            onClick={() => onNavigate("become-provider")}
             className="bg-stone-900 text-white hover:bg-stone-800 font-medium px-6 py-3 rounded-xl transition-colors shrink-0 cursor-pointer text-sm shadow-sm"
           >
             Join as Provider →
