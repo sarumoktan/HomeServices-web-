@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Briefcase, DollarSign, Star, Clock } from "lucide-react";
+import { Briefcase, DollarSign, Star, Clock, MessageSquare } from "lucide-react";
+import ChatModal from "../components/modals/ChatModal";
 
 export function ProviderDashboard() {
   const [dashboardData, setDashboardData] = useState({
@@ -7,10 +8,11 @@ export function ProviderDashboard() {
     completedJobs: 28,
     averageRating: 4.9,
     activeRequests: [
-      { id: 1, serviceName: "Deep Home Cleaning", status: "confirmed", schedule: "Tomorrow, 10:00 AM • Lazimpat, Kathmandu" }
+      { id: 1, serviceName: "Deep Home Cleaning", status: "confirmed", schedule: "Tomorrow, 10:00 AM • Lazimpat, Kathmandu", clientId: 1, clientName: "Customer" }
     ]
   });
   const [loading, setLoading] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -117,12 +119,21 @@ export function ProviderDashboard() {
                   </p>
                 </div>
                 
-                <button 
-                  onClick={() => handleStartJob(job.id || 1)}
-                  className="bg-[#2E4CDB] hover:bg-[#233EC2] text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-sm"
-                >
-                  Start Job
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setSelectedClient({ id: job.clientId || 1, name: job.clientName || 'Customer' })}
+                    className="bg-gray-200 hover:bg-gray-300 text-[#17181A] px-4 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" /> Chat
+                  </button>
+
+                  <button 
+                    onClick={() => handleStartJob(job.id || 1)}
+                    className="bg-[#2E4CDB] hover:bg-[#233EC2] text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-sm"
+                  >
+                    Start Job
+                  </button>
+                </div>
               </div>
             ))
           ) : (
@@ -130,6 +141,13 @@ export function ProviderDashboard() {
           )}
         </div>
       </div>
+
+      {selectedClient && (
+        <ChatModal 
+          recipient={selectedClient} 
+          onClose={() => setSelectedClient(null)} 
+        />
+      )}
     </div>
   );
 }
