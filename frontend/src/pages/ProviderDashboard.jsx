@@ -120,9 +120,13 @@ export function ProviderDashboard() {
                 </div>
                 
                 <div className="flex items-center gap-2">
+                  {/* CHANGED HERE: Added console.log inside onClick to debug click triggers and state updates */}
                   <button 
-                    onClick={() => setSelectedClient({ id: job.clientId || 1, name: job.clientName || 'Customer' })}
-                    className="bg-gray-200 hover:bg-gray-300 text-[#17181A] px-4 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
+                    onClick={() => {
+                      console.log("Chat button clicked for client:", job.clientId, job.clientName);
+                      setSelectedClient({ id: job.clientId || 1, name: job.clientName || 'Customer' });
+                    }}
+                    className="bg-gray-200 hover:bg-gray-300 text-[#17181A] px-4 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-sm flex items-center gap-1.5 z-20 relative"
                   >
                     <MessageSquare className="w-3.5 h-3.5" /> Chat
                   </button>
@@ -142,6 +146,7 @@ export function ProviderDashboard() {
         </div>
       </div>
 
+      {/*  Ensures ChatModal renders conditionally when selectedClient is populated */}
       {selectedClient && (
         <ChatModal 
           recipient={selectedClient} 
