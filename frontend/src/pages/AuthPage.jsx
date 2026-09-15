@@ -143,8 +143,8 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: emailAddress || identifier,
-          phone: phone || identifier,
+          email: emailAddress || undefined,
+          phone: !useEmail ? (phone || identifier) : undefined,
           firstName,
           lastName,
           address,
@@ -157,12 +157,13 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
       }
 
       setLoading(false);
+
+      // === FIXED: use the real id + token the backend just returned,
+      // instead of only the locally-typed form values. Without the real
+      // id, ChatModal has no way to build a valid chat room. ===
       onLogin(userType, {
-        fullName: `${firstName} ${lastName}`.trim(),
-        address,
-        email: emailAddress || identifier,
-        phone: phone || identifier,
-        role: userType,
+        token: data.data.token,
+        user: data.data.user,
       });
     } catch (err) {
       setLoading(false);
@@ -173,7 +174,7 @@ export function AuthPage({ authTab, setAuthTab, userType, setUserType, onLogin }
   return (
     <div className="min-h-[calc(100vh-62px)] flex items-center justify-center p-6 bg-[#F4F3EE] font-sans">
       <div className="w-[min(420px,100%)] p-9 text-center bg-white border border-stone-200 rounded-2xl shadow-sm">
-        
+
         {step === "auth" && (
           <div className="flex bg-stone-100 p-1 rounded-xl mb-6 border border-stone-200">
             <button
