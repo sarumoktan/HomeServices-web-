@@ -203,6 +203,13 @@ export default function App() {
     setSelectedChatProvider(null);
   };
 
+  // CHAT ROLE MAPPING
+  // Your backend's ChatMessage model expects senderRole to be
+  // 'customer' or 'provider' — but userType in this app is
+  // 'user' / 'provider' / 'admin'. Normalize it here so ChatModal
+  // always gets a value the backend enum accepts.
+  const chatRole = userType === "provider" ? "provider" : "customer";
+
   // APP UI
 
   return (
@@ -249,10 +256,19 @@ export default function App() {
       )}
 
       {/* CHAT MODAL */}
+      {/*
+        FIX: ChatModal returns null if currentUser is missing — it was
+        silently rendering nothing because these two props weren't passed.
+      */}
 
       {showChat && selectedChatProvider && (
         <ChatModal
           provider={selectedChatProvider}
+          currentUser={{
+            id: currentUser?.id ?? currentUser?._id,
+            role: chatRole,
+          }}
+          authToken={localStorage.getItem("token")}
           onClose={handleCloseChat}
         />
       )}
