@@ -1,9 +1,5 @@
 const providerModel = require('./provider.model');
 
-// === FIXED: findAllProviders() now returns raw `users` rows (firstName,
-// lastName, serviceType, etc). ServicesPage.jsx and ProviderCard expect a
-// flatter shape (name, service, category, rating, hourlyRate, ...), so we
-// map the DB rows into that shape here rather than changing every frontend
 // component that consumes it. ===
 function formatProviderForFrontend(row) {
   const fullName = [row.firstName, row.lastName].filter(Boolean).join(' ').trim() || 'Unnamed Provider';
@@ -57,10 +53,9 @@ async function createProvider(providerData) {
   return await providerModel.insertProvider(formattedData);
 }
 
-async function getDashboardData() {
-  return await providerModel.fetchDashboardStats();
+async function getDashboardData(providerId) {
+  return await providerModel.fetchDashboardStats(providerId);
 }
-
 async function updateJobStatus(jobId, status) {
   return await providerModel.updateJobStatusInDb(jobId, status);
 }
